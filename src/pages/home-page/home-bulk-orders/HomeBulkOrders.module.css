@@ -1,0 +1,135 @@
+/* ==========================================================================
+   Buy2Go HomeBulkOrders Styles
+   "NEED A LARGER RUN? BULK ORDERS, EVENT MERCH AND TEAM KITS." Section
+   Matching dark e-commerce theme screenshot
+   ========================================================================== */
+
+.section {
+  width: 100%;
+  background-color: #17130f;
+  color: #FFFFFF;
+  padding: 68px 40px 72px 40px;
+  box-sizing: border-box;
+  font-family: var(--font-family-base);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+@media (min-width: 577px) and (max-width: 1024px) {
+  .section {
+    padding: 56px 28px 60px 28px;
+  }
+}
+
+@media (max-width: 576px) {
+  .section {
+    padding: 44px 16px 48px 16px;
+  }
+}
+
+.container {
+  width: 100%;
+  max-width: 1360px;
+  margin: 0 auto;
+}
+
+.row {
+  width: 100%;
+}
+
+.leftCol {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Orange Subtitle Tag */
+.tag {
+  color: var(--color-primary, #FF5E00);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  display: block;
+}
+
+/* Massive Headline */
+.title {
+  font-size: clamp(34px, 4.2vw, 56px);
+  font-weight: 900;
+  line-height: 1.05;
+  letter-spacing: -0.025em;
+  text-transform: uppercase;
+  color: #F5F2EB;
+  margin: 0 0 18px 0;
+  max-width: 820px;
+}
+
+.titleLine {
+  display: block;
+}
+
+/* Description */
+.description {
+  color: #8C867E;
+  font-size: 15px;
+  line-height: 1.6;
+  max-width: 620px;
+  margin: 0;
+  font-weight: 400;
+}
+
+/* Right Column / WhatsApp Button */
+.rightCol {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+@media (max-width: 991px) {
+  .rightCol {
+    justify-content: flex-start;
+    margin-top: 12px;
+  }
+}
+
+.whatsappBtn {
+  height: 48px !important;
+  padding: 0 24px !important;
+  background-color: #FAF4E8 !important;
+  border: 1px solid #FAF4E8 !important;
+  color: #12100E !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  border-radius: var(--border-radius-base, 8px) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  cursor: pointer !important;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+}
+
+.btnIcon {
+  color: #12100E;
+  flex-shrink: 0;
+}
+
+.whatsappBtn:hover {
+  background-color: #FFFFFF !important;
+  border-color: #FFFFFF !important;
+  color: #000000 !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 18px rgba(250, 244, 232, 0.25) !important;
+}
+
+.whatsappBtn:active {
+  transform: translateY(0) !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15) !important;
+}
+
+@media (max-width: 576px) {
+  .whatsappBtn {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+}

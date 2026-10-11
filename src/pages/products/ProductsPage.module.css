@@ -5,7 +5,7 @@
 .pageContainer {
   width: 100%;
   min-height: calc(100vh - 64px);
-  background-color: #F6F3EE;
+  background-color: #f8efde;
   color: #12100E;
   padding: 56px 40px 80px 40px;
   box-sizing: border-box;

@@ -5,7 +5,7 @@
 
 .section {
   width: 100%;
-  background-color: #F6F3EE;
+  background-color: #f8efde;
   color: #12100E;
   padding: 72px 40px 84px 40px;
   box-sizing: border-box;
@@ -106,7 +106,7 @@
   width: 100%;
   aspect-ratio: 1 / 1.02;
   overflow: hidden;
-  background-color: #EDE7DE;
+  background-color: #f8efde;
   border-radius: 4px;
   display: flex;
   align-items: center;
