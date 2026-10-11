@@ -1,0 +1,178 @@
+/* ==========================================================================
+   Buy2Go AppHeader Styles (Ant Design Header Wrapper)
+   Single Theme: Dark & Brand Orange
+   ========================================================================== */
+
+.header {
+  height: 64px !important;
+  line-height: normal !important;
+  background-color: var(--color-bg-header, #0D0907) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 0 40px !important;
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 100 !important;
+  backdrop-filter: blur(8px);
+}
+
+/* Tablet / Tab View (577px - 1024px) matching Tab Screenshot */
+@media (min-width: 577px) and (max-width: 1024px) {
+  .header {
+    padding: 0 28px !important;
+    height: 60px !important;
+  }
+
+  .logoText {
+    font-size: 24px !important;
+  }
+
+  /* "Products" is visible on Tab view */
+  .navLink {
+    display: inline-flex !important;
+    font-size: 14px !important;
+  }
+
+  .navActions {
+    gap: 20px !important;
+  }
+
+  .cartBtn {
+    height: 38px !important;
+    padding: 0 14px !important;
+    font-size: 14px !important;
+  }
+}
+
+/* Mobile View (<= 576px) matching Mobile Screenshot */
+@media (max-width: 576px) {
+  .header {
+    padding: 0 16px !important;
+    height: 56px !important;
+  }
+
+  .logoText {
+    font-size: 22px !important;
+  }
+
+  /* Hide "Products" link ONLY on mobile */
+  .navLink {
+    display: none !important;
+  }
+
+  .navActions {
+    gap: 0 !important;
+  }
+
+  .cartBtn {
+    height: 36px !important;
+    padding: 0 12px !important;
+    font-size: 13px !important;
+  }
+}
+
+/* ==========================================================================
+   Brand Logo
+   ========================================================================== */
+.logoContainer {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  cursor: pointer;
+  user-select: none;
+  transition: opacity var(--transition-fast, 150ms ease);
+}
+
+.logoContainer:hover {
+  opacity: 0.9;
+}
+
+.logoText {
+  font-size: 26px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-family: var(--font-family-base);
+  display: inline-flex;
+  align-items: baseline;
+}
+
+.logoOrange {
+  color: var(--color-primary, #FF5E00);
+}
+
+.logoWhite {
+  color: var(--color-text-primary, #FFFFFF);
+}
+
+/* ==========================================================================
+   Navigation & Actions (Right side)
+   ========================================================================== */
+.navActions {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+
+@media (max-width: 576px) {
+  .navActions {
+    gap: 16px;
+  }
+}
+
+.navLink {
+  color: var(--color-text-primary, #FFFFFF);
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: color var(--transition-fast, 150ms ease);
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-family-base);
+}
+
+.navLink:hover {
+  color: var(--color-primary, #FF5E00);
+}
+
+/* ==========================================================================
+   Cart Button
+   ========================================================================== */
+.cartBtn {
+  height: 38px !important;
+  padding: 0 16px !important;
+  font-size: 14px !important;
+}
+
+.cartIcon {
+  font-size: 16px;
+  display: inline-flex;
+}
+
+.cartBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-primary, #FF5E00) !important;
+  color: #000000 !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 9999px;
+  line-height: 1;
+  box-sizing: border-box;
+}
+
+.cartBtn:hover .cartBadge,
+.cartBtn:hover span.cartBadge {
+  color: #000000 !important;
+  background-color: var(--color-primary, #FF5E00) !important;
+}

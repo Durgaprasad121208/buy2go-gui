@@ -1,0 +1,178 @@
+/* ==========================================================================
+   Buy2Go Custom Buttons Styles (Using Global Theme Tokens)
+   Single Theme: Dark & Brand Orange
+   ========================================================================== */
+
+/* Base common button styling applied across custom buttons */
+.baseBtn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  border-radius: var(--border-radius-base, 8px) !important;
+  height: var(--btn-height-base, 44px) !important;
+  font-family: var(--font-family-base) !important;
+  font-size: var(--font-size-md, 15px) !important;
+  letter-spacing: 0.01em !important;
+  cursor: pointer !important;
+  transition: var(--transition-base) !important;
+  text-decoration: none !important;
+  user-select: none !important;
+}
+
+/* ==========================================================================
+   1. Submit Button (Primary Action - Solid Orange / Black Text)
+   e.g. "Buy now — COD" / "Submit"
+   ========================================================================== */
+.submitBtn {
+  composes: baseBtn;
+  background-color: var(--color-primary, #FF5E00) !important;
+  border: 1px solid var(--color-primary, #FF5E00) !important;
+  color: var(--color-primary-text, #000000) !important;
+  font-weight: 700 !important;
+  box-shadow: var(--shadow-btn-primary, 0 4px 14px rgba(255, 94, 0, 0.28)) !important;
+}
+
+.submitBtn :global(.ant-btn-icon),
+.submitBtn span,
+.submitBtn svg {
+  color: var(--color-primary-text, #000000) !important;
+  fill: currentColor !important;
+}
+
+.submitBtn:hover:not(:disabled) {
+  background-color: var(--color-primary-hover, #FF7724) !important;
+  border-color: var(--color-primary-hover, #FF7724) !important;
+  color: var(--color-primary-text, #000000) !important;
+  box-shadow: var(--shadow-btn-primary-hover, 0 6px 20px rgba(255, 94, 0, 0.42)) !important;
+  transform: translateY(-1px) !important;
+}
+
+.submitBtn:active:not(:disabled) {
+  background-color: var(--color-primary-active, #E04E00) !important;
+  border-color: var(--color-primary-active, #E04E00) !important;
+  transform: translateY(0) !important;
+  box-shadow: 0 2px 8px rgba(255, 94, 0, 0.25) !important;
+}
+
+.submitBtn:disabled,
+.submitBtn[disabled] {
+  background-color: var(--color-border-subtle, #242428) !important;
+  border-color: var(--color-border-subtle, #242428) !important;
+  color: var(--color-text-disabled, #4A4A52) !important;
+  box-shadow: none !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+  opacity: 0.6 !important;
+}
+
+.submitBtn:disabled span,
+.submitBtn:disabled svg {
+  color: var(--color-text-disabled, #4A4A52) !important;
+}
+
+/* ==========================================================================
+   2. Cancel / Outline Button (Orange Outline & Orange Text)
+   e.g. "Add to cart" / "Cancel"
+   ========================================================================== */
+.cancelBtn {
+  composes: baseBtn;
+  background-color: transparent !important;
+  border: 1.5px solid var(--color-primary, #FF5E00) !important;
+  color: var(--color-primary, #FF5E00) !important;
+  font-weight: 600 !important;
+}
+
+.cancelBtn :global(.ant-btn-icon),
+.cancelBtn span,
+.cancelBtn svg {
+  color: var(--color-primary, #FF5E00) !important;
+  fill: currentColor !important;
+}
+
+.cancelBtn:hover:not(:disabled) {
+  background-color: var(--color-primary-subtle, rgba(255, 94, 0, 0.1)) !important;
+  border-color: var(--color-primary-hover, #FF7724) !important;
+  color: var(--color-primary-hover, #FF7724) !important;
+  box-shadow: 0 0 14px rgba(255, 94, 0, 0.22) !important;
+  transform: translateY(-1px) !important;
+}
+
+.cancelBtn:hover:not(:disabled) span,
+.cancelBtn:hover:not(:disabled) svg {
+  color: var(--color-primary-hover, #FF7724) !important;
+}
+
+.cancelBtn:active:not(:disabled) {
+  background-color: rgba(255, 94, 0, 0.18) !important;
+  border-color: var(--color-primary-active, #E04E00) !important;
+  color: var(--color-primary-active, #E04E00) !important;
+  transform: translateY(0) !important;
+}
+
+.cancelBtn:disabled,
+.cancelBtn[disabled] {
+  background-color: transparent !important;
+  border-color: var(--color-border-subtle, #242428) !important;
+  color: var(--color-text-disabled, #4A4A52) !important;
+  box-shadow: none !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+  opacity: 0.5 !important;
+}
+
+.cancelBtn:disabled span,
+.cancelBtn:disabled svg {
+  color: var(--color-text-disabled, #4A4A52) !important;
+}
+
+/* ==========================================================================
+   3. Dark Surface Button (Dark Background & White Text)
+   Alternative "Add to cart" style from Image 2
+   ========================================================================== */
+.darkBtn {
+  composes: baseBtn;
+  background-color: var(--color-bg-container, #141416) !important;
+  border: 1px solid var(--color-border-base, #333338) !important;
+  color: var(--color-text-primary, #FFFFFF) !important;
+  font-weight: 600 !important;
+}
+
+.darkBtn :global(.ant-btn-icon),
+.darkBtn span,
+.darkBtn svg {
+  color: var(--color-text-primary, #FFFFFF) !important;
+  fill: currentColor !important;
+}
+
+.darkBtn:hover:not(:disabled) {
+  background-color: var(--color-bg-elevated, #1E1E22) !important;
+  border-color: var(--color-primary, #FF5E00) !important;
+  color: var(--color-primary, #FF5E00) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5) !important;
+  transform: translateY(-1px) !important;
+}
+
+.darkBtn:hover:not(:disabled) span,
+.darkBtn:hover:not(:disabled) svg {
+  color: var(--color-primary, #FF5E00) !important;
+}
+
+.darkBtn:active:not(:disabled) {
+  background-color: var(--color-bg-spotlight, #26262B) !important;
+  transform: translateY(0) !important;
+}
+
+.darkBtn:disabled,
+.darkBtn[disabled] {
+  background-color: var(--color-bg-container, #141416) !important;
+  border-color: var(--color-border-subtle, #242428) !important;
+  color: var(--color-text-disabled, #4A4A52) !important;
+  cursor: not-allowed !important;
+  opacity: 0.5 !important;
+}
+
+.darkBtn:disabled span,
+.darkBtn:disabled svg {
+  color: var(--color-text-disabled, #4A4A52) !important;
+}

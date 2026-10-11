@@ -1,0 +1,22 @@
+/* ==========================================================================
+   Buy2Go AppLayout Styles (Ant Design Layout Wrapper)
+   Header at top, Footer at bottom, Content dynamically in the middle
+   ========================================================================== */
+
+.layout {
+  min-height: 100vh !important;
+  display: flex !important;
+  flex-direction: column !important;
+  background-color: var(--color-bg-base, #0B0B0C) !important;
+  color: var(--color-text-primary, #FFFFFF) !important;
+  width: 100% !important;
+}
+
+.content {
+  flex: 1 0 auto !important;
+  width: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  background-color: transparent !important;
+  padding: 0 !important;
+}

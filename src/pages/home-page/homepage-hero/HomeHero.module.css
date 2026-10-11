@@ -1,0 +1,294 @@
+/* ==========================================================================
+   Buy2Go HomeHero Styles
+   Pixel-perfect match to provided design screenshots
+   ========================================================================== */
+
+.heroContainer {
+  width: 100%;
+  background-color: var(--color-bg-header, #0D0907);
+  color: var(--color-text-primary, #FFFFFF);
+  overflow: hidden;
+}
+
+/* ==========================================================================
+   1. Hero Banner Section
+   ========================================================================== */
+.heroBanner {
+  width: 100%;
+  min-height: 560px;
+}
+
+.heroLeftCol {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 64px 48px;
+  box-sizing: border-box;
+}
+
+@media (min-width: 577px) and (max-width: 1024px) {
+  .heroLeftCol {
+    padding: 44px 28px;
+  }
+}
+
+@media (max-width: 576px) {
+  .heroLeftCol {
+    padding: 36px 16px;
+  }
+}
+
+/* Studio Tag with Horizontal Orange Line */
+.studioTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.studioLine {
+  width: 24px;
+  height: 2px;
+  background-color: var(--color-primary, #FF5E00);
+  display: inline-block;
+}
+
+.studioText {
+  color: var(--color-primary, #FF5E00);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* Hero Headline */
+.heroTitle {
+  font-size: clamp(48px, 6vw, 76px);
+  font-weight: 900;
+  line-height: 1.04;
+  letter-spacing: -0.02em;
+  margin: 0 0 22px 0;
+  text-transform: uppercase;
+  font-family: var(--font-family-base);
+}
+
+.titleWhite {
+  color: #F5F2EB;
+  display: block;
+}
+
+.titleOrange {
+  color: var(--color-primary, #FF5E00);
+  display: block;
+}
+
+/* Sub-headline Description */
+.heroDescription {
+  color: #9E988F;
+  font-size: 15px;
+  line-height: 1.65;
+  max-width: 420px;
+  margin: 0 0 32px 0;
+  font-family: var(--font-family-base);
+}
+
+/* CTA Row (Button + "No online payment needed") */
+.ctaRow {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.ctaButton {
+  height: 46px !important;
+  padding: 0 24px !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  border-radius: var(--border-radius-base, 8px) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+.paymentNote {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #A6A097;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: var(--font-family-base);
+  user-select: none;
+}
+
+.checkIcon {
+  color: var(--color-primary, #FF5E00);
+  flex-shrink: 0;
+}
+
+@media (max-width: 576px) {
+  .ctaRow {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+    width: 100%;
+  }
+
+  .ctaButton {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+}
+
+/* Right Column: Hero Visual & Floating Badge */
+.heroRightCol {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  min-height: 480px;
+}
+
+@media (max-width: 768px) {
+  .heroRightCol {
+    min-height: 380px;
+  }
+}
+
+.heroImageWrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.heroImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
+/* Floating "PRINT. PACK. DELIVER." Badge */
+.heroBadge {
+  position: absolute;
+  bottom: 28px;
+  right: 28px;
+  background-color: rgba(18, 14, 11, 0.94);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--border-radius-base, 8px);
+  padding: 14px 18px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.55);
+  z-index: 10;
+}
+
+@media (max-width: 576px) {
+  .heroBadge {
+    bottom: 16px;
+    right: 16px;
+    padding: 10px 14px;
+  }
+}
+
+.badgeTitle {
+  color: var(--color-primary, #FF5E00);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.badgeSubtitle {
+  color: #D1CCC4;
+  font-size: 13px;
+  font-weight: 500;
+  margin: 4px 0 0 0;
+  line-height: 1.2;
+}
+
+/* ==========================================================================
+   2. Feature Proposition Strip (01, 02, 03)
+   ========================================================================== */
+.featuresStrip {
+  width: 100%;
+  background-color: var(--color-bg-footer, #17130F);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  box-sizing: border-box;
+}
+
+.featureCol {
+  padding: 38px 36px !important;
+  box-sizing: border-box;
+}
+
+/* Vertical divider lines between feature cards on Desktop & Tablet */
+@media (min-width: 769px) {
+  .featureCol:not(:last-child) {
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+  }
+}
+
+@media (min-width: 577px) and (max-width: 1024px) {
+  .featureCol {
+    padding: 32px 24px !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .featureCol {
+    padding: 24px 20px !important;
+  }
+
+  .featureCol:not(:last-child) {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+}
+
+.featureCard {
+  display: flex;
+  flex-direction: column;
+}
+
+.featureHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.featureNumber {
+  color: var(--color-primary, #FF5E00);
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  font-family: var(--font-family-base);
+}
+
+.featureIcon {
+  color: #FFFFFF;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.featureTitle {
+  color: #FFFFFF;
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0 0 8px 0;
+  font-family: var(--font-family-base);
+}
+
+.featureDesc {
+  color: #9E988F;
+  font-size: 14px;
+  line-height: 1.5;
+  margin: 0;
+  font-family: var(--font-family-base);
+}
