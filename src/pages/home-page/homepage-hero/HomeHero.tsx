@@ -28,63 +28,64 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
 }) => {
   return (
     <section className={`${styles.heroContainer} ${className}`.trim()} style={style}>
-      {/* 1. Hero Main Banner */}
-      <Row className={styles.heroBanner} align="stretch">
-        {/* Left Column: Headline, Studio Tag, Description, CTA Row */}
-        <Col xs={24} md={12} lg={13} className={styles.heroLeftCol}>
-          {/* Studio Tag with Orange Dash */}
-          <div className={styles.studioTag}>
-            <span className={styles.studioLine} aria-hidden="true" />
-            <span className={styles.studioText}>Custom Print Studio</span>
-          </div>
+      {/* 1. Hero Main Banner (Unified Panoramic Scene matching Image 1) */}
+      <div className={styles.heroBanner}>
+        {/* Background Layer with Panoramic Image & Seamless Gradient */}
+        <div className={styles.heroBackgroundWrapper}>
+          <img
+            src={heroImage}
+            alt="Custom print apparel studio showcasing custom DTG printed t-shirt"
+            className={styles.heroBackgroundImage}
+          />
+          <div className={styles.heroGradientOverlay} />
+        </div>
 
-          {/* Big Headline */}
-          <h1 className={styles.heroTitle}>
-            <span className={styles.titleWhite}>CLICK.</span>
-            <span className={styles.titleOrange}>BUY. GO.</span>
-          </h1>
+        {/* Content Overlay */}
+        <div className={styles.heroContent}>
+          <div className={styles.heroLeftCol}>
+            {/* Studio Tag with Orange Dash */}
+            <div className={styles.studioTag}>
+              <span className={styles.studioLine} aria-hidden="true" />
+              <span className={styles.studioText}>Custom Print Studio</span>
+            </div>
 
-          {/* Subtitle / Description */}
-          <p className={styles.heroDescription}>
-            Turn your artwork into premium tees, caps, mugs and key chains—printed
-            with care and delivered to your door.
-          </p>
+            {/* Big Headline */}
+            <h1 className={styles.heroTitle}>
+              <span className={styles.titleWhite}>CLICK.</span>
+              <span className={styles.titleOrange}>BUY. GO.</span>
+            </h1>
 
-          {/* CTA Row: Action Button + "No online payment needed" */}
-          <div className={styles.ctaRow}>
-            <SubmitButton
-              onClick={onCtaClick}
-              className={styles.ctaButton}
-              icon={<ArrowRight size={18} />}
-              iconPosition="end"
-            >
-              {ctaText}
-            </SubmitButton>
+            {/* Subtitle / Description */}
+            <p className={styles.heroDescription}>
+              Turn your artwork into premium tees, caps, mugs and key chains—printed
+              with care and delivered to your door.
+            </p>
 
-            <div className={styles.paymentNote}>
-              <Check size={16} className={styles.checkIcon} strokeWidth={2.5} />
-              <span>No online payment needed</span>
+            {/* CTA Row: Action Button + "No online payment needed" */}
+            <div className={styles.ctaRow}>
+              <SubmitButton
+                onClick={onCtaClick}
+                className={styles.ctaButton}
+                icon={<ArrowRight size={18} />}
+                iconPosition="end"
+              >
+                {ctaText}
+              </SubmitButton>
+
+              <div className={styles.paymentNote}>
+                <Check size={16} className={styles.checkIcon} strokeWidth={2.5} />
+                <span>No online payment needed</span>
+              </div>
             </div>
           </div>
-        </Col>
+        </div>
 
-        {/* Right Column: Hero Visual & "PRINT. PACK. DELIVER." Badge */}
-        <Col xs={24} md={12} lg={11} className={styles.heroRightCol}>
-          <div className={styles.heroImageWrapper}>
-            <img
-              src={heroImage}
-              alt="Custom print apparel studio showcasing custom DTG printed t-shirt"
-              className={styles.heroImage}
-            />
-
-            {/* Floating Badge */}
-            <div className={styles.heroBadge}>
-              <h4 className={styles.badgeTitle}>PRINT. PACK. DELIVER.</h4>
-              <p className={styles.badgeSubtitle}>Made fresh for every order</p>
-            </div>
-          </div>
-        </Col>
-      </Row>
+        {/* Floating Badge (Bottom-Right) */}
+        <div className={styles.heroBadge}>
+          <h4 className={styles.badgeTitle}>PRINT. PACK. DELIVER.</h4>
+          <p className={styles.badgeSubtitle}>Made fresh for every order</p>
+        </div>
+      </div>
 
       {/* 2. Feature Propositions Strip (01, 02, 03) */}
       <div className={styles.featuresStrip}>
