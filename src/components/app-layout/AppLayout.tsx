@@ -8,16 +8,26 @@ const { Content } = Layout;
 
 export interface AppLayoutProps {
   children?: React.ReactNode;
+  onNavigateHome?: () => void;
+  onNavigateProducts?: () => void;
+  activePage?: 'home' | 'products';
 }
 
 /**
  * AppLayout (MainLayout) - Fixed Header at top, Footer at bottom,
  * and page components passed and rendered dynamically in the middle.
  */
-export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
+export const AppLayout: React.FC<AppLayoutProps> = ({
+  children,
+  onNavigateHome,
+  onNavigateProducts,
+}) => {
   return (
     <Layout className={styles.layout}>
-      <AppHeader />
+      <AppHeader
+        onLogoClick={onNavigateHome}
+        onProductsClick={onNavigateProducts}
+      />
       <Content className={styles.content}>
         {children}
       </Content>

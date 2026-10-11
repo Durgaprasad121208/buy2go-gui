@@ -62,8 +62,8 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  /* Shift down by 24px so the model's head has generous headroom and isn't clipped by header */
-  object-position: 80% 24px;
+  /* Shifted higher up while keeping model head and hair completely framed */
+  object-position: 80% -12px;
   display: block;
 }
 
@@ -91,7 +91,7 @@
 /* Tab view: keep model on the right bright and fully visible */
 @media (min-width: 577px) and (max-width: 1024px) {
   .heroBackgroundImage {
-    object-position: 84% 20px;
+    object-position: 84% -8px;
   }
 
   .heroGradientOverlay {
@@ -109,7 +109,7 @@
 /* Mobile view: gentle vignette keeping model visible */
 @media (max-width: 576px) {
   .heroBackgroundImage {
-    object-position: 70% 16px;
+    object-position: 70% 0px;
   }
 
   .heroGradientOverlay {

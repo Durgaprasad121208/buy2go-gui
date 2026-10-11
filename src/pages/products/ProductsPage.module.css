@@ -1,0 +1,90 @@
+/* ==========================================================================
+   Buy2Go ProductsPage Styles
+   ========================================================================== */
+
+.pageContainer {
+  width: 100%;
+  min-height: calc(100vh - 64px);
+  background-color: #F6F3EE;
+  color: #12100E;
+  padding: 56px 40px 80px 40px;
+  box-sizing: border-box;
+  font-family: var(--font-family-base);
+}
+
+@media (min-width: 577px) and (max-width: 1024px) {
+  .pageContainer {
+    padding: 44px 28px 64px 28px;
+  }
+}
+
+@media (max-width: 576px) {
+  .pageContainer {
+    padding: 32px 16px 52px 16px;
+  }
+}
+
+.contentWrapper {
+  max-width: 1360px;
+  margin: 0 auto;
+}
+
+.pageHeader {
+  margin-bottom: 44px;
+}
+
+.categoryBreadcrumb {
+  color: var(--color-primary, #FF5E00);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  display: block;
+}
+
+.pageTitle {
+  font-size: clamp(34px, 4.5vw, 52px);
+  font-weight: 900;
+  letter-spacing: -0.025em;
+  color: #12100E;
+  margin: 0 0 12px 0;
+  line-height: 1.05;
+  text-transform: uppercase;
+}
+
+.pageSubtitle {
+  color: #726D65;
+  font-size: 16px;
+  line-height: 1.6;
+  max-width: 600px;
+  margin: 0;
+}
+
+/* Filter pills */
+.filterBar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 36px;
+  flex-wrap: wrap;
+}
+
+.filterPill {
+  height: 36px !important;
+  padding: 0 18px !important;
+  border-radius: 20px !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  border: 1px solid rgba(0, 0, 0, 0.12) !important;
+  background-color: #FFFFFF !important;
+  color: #12100E !important;
+  transition: all 0.2s ease !important;
+}
+
+.filterPillActive {
+  background-color: #12100E !important;
+  border-color: #12100E !important;
+  color: #FFFFFF !important;
+}
