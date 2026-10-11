@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { HomeHero } from './homepage-hero/HomeHero';
 import { HomeProducts } from './home-products/HomeProducts';
 import { HomeBulkOrders } from './home-bulk-orders/HomeBulkOrders';
@@ -21,10 +22,33 @@ export const HomePage: React.FC<HomePageProps> = ({
   onProductClick,
   onBulkChatClick,
 }) => {
+  const navigate = useNavigate();
+
+  const handleCta = () => {
+    if (onExploreProductsClick) {
+      onExploreProductsClick();
+    } else {
+      const el = document.getElementById('products-section');
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth' });
+      } else {
+        navigate('/products');
+      }
+    }
+  };
+
+  const handleProduct = (product: ProductItem) => {
+    if (onProductClick) {
+      onProductClick(product);
+    } else {
+      navigate('/products');
+    }
+  };
+
   return (
     <div>
-      <HomeHero onCtaClick={onExploreProductsClick} />
-      <HomeProducts onProductClick={onProductClick} />
+      <HomeHero onCtaClick={handleCta} />
+      <HomeProducts onProductClick={handleProduct} />
       <HomeBulkOrders onChatClick={onBulkChatClick} />
     </div>
   );

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Layout } from 'antd';
+import { Outlet, useNavigate } from 'react-router-dom';
 import { AppHeader } from '../app-header/AppHeader';
 import { AppFooter } from '../app-footer/AppFooter';
 import styles from './AppLayout.module.css';
@@ -10,26 +11,46 @@ export interface AppLayoutProps {
   children?: React.ReactNode;
   onNavigateHome?: () => void;
   onNavigateProducts?: () => void;
-  activePage?: 'home' | 'products';
+  activePage?: string;
 }
 
 /**
  * AppLayout (MainLayout) - Fixed Header at top, Footer at bottom,
- * and page components passed and rendered dynamically in the middle.
+ * and page components rendered in Content via children or React Router's <Outlet />.
  */
 export const AppLayout: React.FC<AppLayoutProps> = ({
   children,
   onNavigateHome,
   onNavigateProducts,
 }) => {
+  const navigate = useNavigate();
+
+  const handleHomeClick = () => {
+    if (onNavigateHome) {
+      onNavigateHome();
+    } else {
+      navigate('/');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  const handleProductsClick = () => {
+    if (onNavigateProducts) {
+      onNavigateProducts();
+    } else {
+      navigate('/products');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
   return (
     <Layout className={styles.layout}>
       <AppHeader
-        onLogoClick={onNavigateHome}
-        onProductsClick={onNavigateProducts}
+        onLogoClick={handleHomeClick}
+        onProductsClick={handleProductsClick}
       />
       <Content className={styles.content}>
-        {children}
+        {children || <Outlet />}
       </Content>
       <AppFooter />
     </Layout>

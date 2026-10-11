@@ -1,51 +1,75 @@
-import React, { useState } from 'react';
-import { AppLayout } from './components/app-layout/AppLayout';
+import React from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import MainLayout from './components/app-layout/AppLayout';
 import { HomePage } from './pages/home-page/HomePage';
 import { ProductsPage } from './pages/products/ProductsPage';
-import { ProductItem } from './data/products';
 import './App.css';
 
+/**
+ * Route Configuration Table
+ * Add new pages and feature routes here
+ */
+export const availableRoutes = [
+  { path: 'products', element: ProductsPage },
+  // Future routes:
+  // { path: 'cart', element: CartPage },
+  // { path: 'checkout', element: CheckoutPage },
+  // { path: 'products/:id', element: ProductDetailPage },
+];
+
+/**
+ * Route Guards
+ */
+interface RouteGuardProps {
+  children: React.ReactElement;
+}
+
+export const PublicRoute: React.FC<RouteGuardProps> = ({ children }) => {
+  // If user is already logged in, redirect to '/' if needed
+  return children;
+};
+
+export const ProtectedRoute: React.FC<RouteGuardProps> = ({ children }) => {
+  // Check auth token / state here
+  return children;
+};
+
 function App() {
-  const [currentPage, setCurrentPage] = useState<'home' | 'products'>('home');
-  const [, setSelectedProduct] = useState<ProductItem | null>(null);
-
-  const handleNavigateHome = () => {
-    setCurrentPage('home');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const handleNavigateProducts = () => {
-    const productsSection = document.getElementById('products-section');
-    if (currentPage === 'home' && productsSection) {
-      productsSection.scrollIntoView({ behavior: 'smooth' });
-    } else {
-      setCurrentPage('products');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  };
-
-  const handleProductSelect = (product: ProductItem) => {
-    setSelectedProduct(product);
-  };
-
   return (
-    <AppLayout
-      onNavigateHome={handleNavigateHome}
-      onNavigateProducts={handleNavigateProducts}
-      activePage={currentPage}
-    >
-      {currentPage === 'home' ? (
-        <HomePage
-          onExploreProductsClick={() => {
-            const el = document.getElementById('products-section');
-            if (el) el.scrollIntoView({ behavior: 'smooth' });
-          }}
-          onProductClick={handleProductSelect}
-        />
-      ) : (
-        <ProductsPage onProductSelect={handleProductSelect} />
-      )}
-    </AppLayout>
+    <Routes>
+      {/* 1. Public Standalone Routes (e.g. Login, Register) */}
+      {/*
+      <Route
+        path="/login"
+        element={
+          <PublicRoute>
+            <LoginPage />
+          </PublicRoute>
+        }
+      />
+      */}
+
+      {/* 2. Main Application Routes wrapped in MainLayout (Header + Outlet + Footer) */}
+      <Route
+        path="/"
+        element={
+          <ProtectedRoute>
+            <MainLayout />
+          </ProtectedRoute>
+        }
+      >
+        {/* Default index route: HomePage */}
+        <Route index element={<HomePage />} />
+
+        {/* Dynamic available routes mapping */}
+        {availableRoutes.map(({ path, element: Element }) => (
+          <Route key={path} path={path} element={<Element />} />
+        ))}
+      </Route>
+
+      {/* 3. Global fallback for unmatched routes */}
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
   );
 }
 
