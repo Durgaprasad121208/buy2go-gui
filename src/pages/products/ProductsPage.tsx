@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Row, Col, Button } from 'antd';
+import { useNavigate } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { PRODUCTS_COLLECTION, ProductItem } from '../../data/products';
 import homeStyles from '../home-page/home-products/HomeProducts.module.css';
@@ -10,7 +11,16 @@ export interface ProductsPageProps {
 }
 
 export const ProductsPage: React.FC<ProductsPageProps> = ({ onProductSelect }) => {
+  const navigate = useNavigate();
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
+
+  const handleCardClick = (product: ProductItem) => {
+    if (onProductSelect) {
+      onProductSelect(product);
+    } else {
+      navigate(`/product-info/${product.id}`);
+    }
+  };
 
   const categories = ['ALL', 'APPAREL', 'DRINKWARE', 'ACCESSORIES'];
 
@@ -52,7 +62,7 @@ export const ProductsPage: React.FC<ProductsPageProps> = ({ onProductSelect }) =
             <Col key={product.id} xs={24} sm={12} lg={6}>
               <div
                 className={homeStyles.cardWrapper}
-                onClick={() => onProductSelect?.(product)}
+                onClick={() => handleCardClick(product)}
                 role="button"
                 tabIndex={0}
               >
@@ -75,7 +85,7 @@ export const ProductsPage: React.FC<ProductsPageProps> = ({ onProductSelect }) =
                       aria-label={`View ${product.title}`}
                       onClick={(e) => {
                         e.stopPropagation();
-                        onProductSelect?.(product);
+                        handleCardClick(product);
                       }}
                     />
                   </div>

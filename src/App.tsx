@@ -3,6 +3,10 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import MainLayout from './components/app-layout/AppLayout';
 import { HomePage } from './pages/home-page/HomePage';
 import { ProductsPage } from './pages/products/ProductsPage';
+import { ProductInfo } from './pages/product-info/ProductInfo';
+import { Cart } from './pages/cart-checkout/Cart';
+import { AddProducts } from './pages/admin-pages/products/AddProducts';
+import { AllOrders } from './pages/admin-pages/orders/AllOrders';
 import './App.css';
 
 /**
@@ -11,10 +15,14 @@ import './App.css';
  */
 export const availableRoutes = [
   { path: 'products', element: ProductsPage },
-  // Future routes:
-  // { path: 'cart', element: CartPage },
-  // { path: 'checkout', element: CheckoutPage },
-  // { path: 'products/:id', element: ProductDetailPage },
+  { path: 'product-info', element: ProductInfo },
+  { path: 'product-info/:id', element: ProductInfo },
+  { path: 'products/:id', element: ProductInfo },
+  { path: 'cart', element: Cart },
+  { path: 'checkout', element: Cart },
+  { path: 'admin', element: AddProducts },
+  { path: 'admin/products', element: AddProducts },
+  { path: 'admin/orders', element: AllOrders },
 ];
 
 /**

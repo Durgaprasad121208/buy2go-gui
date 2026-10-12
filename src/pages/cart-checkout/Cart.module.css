@@ -1,0 +1,455 @@
+/* ==========================================================================
+   Buy2Go Cart & Checkout Styles
+   Dark E-Commerce Theme matching target design screenshots
+   ========================================================================== */
+
+.pageContainer {
+  width: 100%;
+  min-height: calc(100vh - 64px);
+  background-color: #0A0806;
+  color: #FFFFFF;
+  padding: 48px 48px 84px 48px;
+  box-sizing: border-box;
+  font-family: var(--font-family-base);
+}
+
+@media (min-width: 577px) and (max-width: 1024px) {
+  .pageContainer {
+    padding: 36px 28px 64px 28px;
+  }
+}
+
+@media (max-width: 576px) {
+  .pageContainer {
+    padding: 24px 16px 48px 16px;
+  }
+}
+
+.contentWrapper {
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+/* ==========================================================================
+   Page Header
+   ========================================================================== */
+.headerSection {
+  margin-bottom: 40px;
+}
+
+.tag {
+  color: var(--color-primary, #FF5E00);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  display: block;
+}
+
+.title {
+  font-size: clamp(38px, 4.8vw, 56px);
+  font-weight: 900;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  color: #F5F2EB;
+  margin: 0;
+}
+
+/* ==========================================================================
+   Cart Item Card (Left Column)
+   ========================================================================== */
+.cartItemCard {
+  background-color: #14100E;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+  padding: 24px;
+  margin-bottom: 20px;
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.cartItemCard:hover {
+  border-color: rgba(255, 255, 255, 0.14);
+}
+
+.itemThumbnail {
+  width: 88px;
+  height: 88px;
+  border-radius: 3px;
+  overflow: hidden;
+  background-color: #1C1714;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.productImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.itemContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.itemHeaderRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.itemTitle {
+  color: #F5F2EB;
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0 0 2px 0;
+  line-height: 1.3;
+}
+
+.itemVariant {
+  color: #8C867E;
+  font-size: 13px;
+  margin: 0 0 16px 0;
+  font-weight: 500;
+}
+
+.deleteBtn {
+  color: #7A746C;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s ease;
+}
+
+.deleteBtn:hover {
+  color: var(--color-primary, #FF5E00);
+}
+
+/* Stepper & Price Row */
+.stepperRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.stepper {
+  display: inline-flex;
+  align-items: center;
+  background-color: #0E0B09;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 4px;
+  height: 34px;
+  overflow: hidden;
+}
+
+.stepperBtn {
+  width: 32px;
+  height: 34px;
+  border: none;
+  background: transparent;
+  color: #FFFFFF;
+  font-size: 15px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.stepperBtn:hover:not(:disabled) {
+  background-color: rgba(255, 255, 255, 0.08);
+  color: var(--color-primary, #FF5E00);
+}
+
+.stepperBtn:disabled {
+  color: #4A453F;
+  cursor: not-allowed;
+}
+
+.stepperCount {
+  min-width: 34px;
+  text-align: center;
+  color: #FFFFFF;
+  font-size: 14px;
+  font-weight: 700;
+  user-select: none;
+}
+
+.itemPrice {
+  color: var(--color-primary, #FF5E00);
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+/* Upload photos trigger line */
+.uploadTriggerBtn {
+  background: transparent;
+  border: none;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #A39D94;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.2s ease;
+  text-align: left;
+}
+
+.uploadTriggerBtn:hover {
+  color: var(--color-primary, #FF5E00);
+}
+
+.uploadIcon {
+  color: var(--color-primary, #FF5E00);
+  flex-shrink: 0;
+}
+
+.uploadedCountBadge {
+  background-color: rgba(255, 94, 0, 0.15);
+  color: var(--color-primary, #FF5E00);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+/* ==========================================================================
+   Delivery Details Card (Right Column)
+   ========================================================================== */
+.deliveryCard {
+  background-color: #14100E;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+  padding: 32px 28px;
+  box-sizing: border-box;
+}
+
+.deliveryHeading {
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  color: #F5F2EB;
+  margin: 0 0 28px 0;
+}
+
+/* AntD Form Field Customizations */
+.formItem {
+  margin-bottom: 20px !important;
+}
+
+.fieldLabel {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #8C867E;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.darkInput {
+  background-color: #0E0B09 !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 3px !important;
+  color: #FFFFFF !important;
+  height: 46px !important;
+  font-size: 14px !important;
+  padding: 0 16px !important;
+  transition: all 0.2s ease !important;
+}
+
+.darkInput:hover {
+  border-color: rgba(255, 255, 255, 0.24) !important;
+}
+
+.darkInput:focus,
+.darkInput:focus-within {
+  border-color: var(--color-primary, #FF5E00) !important;
+  box-shadow: 0 0 0 2px rgba(255, 94, 0, 0.2) !important;
+}
+
+.darkInput::placeholder {
+  color: #4A453F !important;
+}
+
+.darkTextArea {
+  background-color: #0E0B09 !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 3px !important;
+  color: #FFFFFF !important;
+  font-size: 14px !important;
+  padding: 12px 16px !important;
+  resize: none !important;
+  font-family: inherit !important;
+  transition: all 0.2s ease !important;
+}
+
+.darkTextArea:hover {
+  border-color: rgba(255, 255, 255, 0.24) !important;
+}
+
+.darkTextArea:focus {
+  border-color: var(--color-primary, #FF5E00) !important;
+  box-shadow: 0 0 0 2px rgba(255, 94, 0, 0.2) !important;
+}
+
+.darkTextArea::placeholder {
+  color: #4A453F !important;
+}
+
+/* Divider */
+.summaryDivider {
+  width: 100%;
+  height: 1px;
+  background-color: rgba(255, 255, 255, 0.08);
+  margin: 28px 0 20px 0;
+}
+
+/* Order Summary Rows */
+.summaryRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.summaryLabel {
+  color: #8C867E;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.summaryValue {
+  color: #F5F2EB;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.totalRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 16px;
+  margin-bottom: 24px;
+}
+
+.totalLabel {
+  color: #FFFFFF;
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.totalPrice {
+  color: var(--color-primary, #FF5E00);
+  font-size: 28px;
+  font-weight: 900;
+  letter-spacing: -0.01em;
+}
+
+/* Place Order CTA Button */
+.placeOrderBtn {
+  width: 100% !important;
+  height: 52px !important;
+  font-size: 16px !important;
+  font-weight: 700 !important;
+  border-radius: 4px !important;
+  background-color: var(--color-primary, #FF5E00) !important;
+  border: 1px solid var(--color-primary, #FF5E00) !important;
+  color: #000000 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  box-shadow: 0 4px 18px rgba(255, 94, 0, 0.35) !important;
+  transition: all 0.2s ease !important;
+}
+
+.placeOrderBtn :global(span) {
+  color: #000000 !important;
+  font-weight: 700 !important;
+}
+
+.placeOrderBtn:hover:not(:disabled) {
+  background-color: var(--color-primary-hover, #FF7724) !important;
+  border-color: var(--color-primary-hover, #FF7724) !important;
+  box-shadow: 0 6px 24px rgba(255, 94, 0, 0.45) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* AntD Form global overrides inside Delivery Card */
+.deliveryCard :global(.ant-form-item-label) {
+  padding-bottom: 2px !important;
+}
+
+.deliveryCard :global(.ant-form-item-label > label) {
+  height: auto !important;
+}
+
+.deliveryCard :global(.ant-form-item-explain-error) {
+  color: #FF5E00 !important;
+  font-size: 12px !important;
+  margin-top: 4px !important;
+}
+
+/* Photo Tags */
+.photoTagsRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.photoTag {
+  background: rgba(255, 94, 0, 0.12) !important;
+  border: 1px solid rgba(255, 94, 0, 0.3) !important;
+  color: #FF5E00 !important;
+  border-radius: 4px !important;
+  font-size: 12px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+}
+
+/* Empty Cart State */
+.emptyCartState {
+  text-align: center;
+  padding: 60px 20px;
+  background-color: #14100E;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+}
+
+.emptyTitle {
+  color: #F5F2EB;
+  font-size: 18px;
+  font-weight: 700;
+  margin: 16px 0 8px 0;
+}
+
+.emptySubtitle {
+  color: #8C867E;
+  font-size: 14px;
+  margin-bottom: 24px;
+}
+

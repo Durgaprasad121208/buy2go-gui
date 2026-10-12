@@ -41,7 +41,7 @@ export const HomePage: React.FC<HomePageProps> = ({
     if (onProductClick) {
       onProductClick(product);
     } else {
-      navigate('/products');
+      navigate(`/product-info/${product.id}`);
     }
   };
 

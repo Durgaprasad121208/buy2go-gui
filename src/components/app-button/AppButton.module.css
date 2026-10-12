@@ -18,6 +18,14 @@
   transition: var(--transition-base) !important;
   text-decoration: none !important;
   user-select: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+.baseBtn:focus,
+.baseBtn:focus-visible {
+  box-shadow: none !important;
+  outline: none !important;
 }
 
 /* ==========================================================================
@@ -30,21 +38,24 @@
   border: 1px solid var(--color-primary, #FF5E00) !important;
   color: var(--color-primary-text, #000000) !important;
   font-weight: 700 !important;
-  box-shadow: var(--shadow-btn-primary, 0 4px 14px rgba(255, 94, 0, 0.28)) !important;
+  box-shadow: none !important;
 }
 
 .submitBtn :global(.ant-btn-icon),
-.submitBtn span,
+.submitBtn span {
+  color: var(--color-primary-text, #000000) !important;
+}
+
 .submitBtn svg {
   color: var(--color-primary-text, #000000) !important;
-  fill: currentColor !important;
+  stroke: currentColor !important;
 }
 
 .submitBtn:hover:not(:disabled) {
   background-color: var(--color-primary-hover, #FF7724) !important;
   border-color: var(--color-primary-hover, #FF7724) !important;
   color: var(--color-primary-text, #000000) !important;
-  box-shadow: var(--shadow-btn-primary-hover, 0 6px 20px rgba(255, 94, 0, 0.42)) !important;
+  box-shadow: none !important;
   transform: translateY(-1px) !important;
 }
 
@@ -52,7 +63,7 @@
   background-color: var(--color-primary-active, #E04E00) !important;
   border-color: var(--color-primary-active, #E04E00) !important;
   transform: translateY(0) !important;
-  box-shadow: 0 2px 8px rgba(255, 94, 0, 0.25) !important;
+  box-shadow: none !important;
 }
 
 .submitBtn:disabled,
@@ -84,17 +95,20 @@
 }
 
 .cancelBtn :global(.ant-btn-icon),
-.cancelBtn span,
+.cancelBtn span {
+  color: var(--color-primary, #FF5E00) !important;
+}
+
 .cancelBtn svg {
   color: var(--color-primary, #FF5E00) !important;
-  fill: currentColor !important;
+  stroke: currentColor !important;
 }
 
 .cancelBtn:hover:not(:disabled) {
   background-color: var(--color-primary-subtle, rgba(255, 94, 0, 0.1)) !important;
   border-color: var(--color-primary-hover, #FF7724) !important;
   color: var(--color-primary-hover, #FF7724) !important;
-  box-shadow: 0 0 14px rgba(255, 94, 0, 0.22) !important;
+  box-shadow: none !important;
   transform: translateY(-1px) !important;
 }
 
@@ -107,6 +121,7 @@
   background-color: rgba(255, 94, 0, 0.18) !important;
   border-color: var(--color-primary-active, #E04E00) !important;
   color: var(--color-primary-active, #E04E00) !important;
+  box-shadow: none !important;
   transform: translateY(0) !important;
 }
 
@@ -136,20 +151,24 @@
   border: 1px solid var(--color-border-base, #333338) !important;
   color: var(--color-text-primary, #FFFFFF) !important;
   font-weight: 600 !important;
+  box-shadow: none !important;
 }
 
 .darkBtn :global(.ant-btn-icon),
-.darkBtn span,
+.darkBtn span {
+  color: var(--color-text-primary, #FFFFFF) !important;
+}
+
 .darkBtn svg {
   color: var(--color-text-primary, #FFFFFF) !important;
-  fill: currentColor !important;
+  stroke: currentColor !important;
 }
 
 .darkBtn:hover:not(:disabled) {
   background-color: var(--color-bg-elevated, #1E1E22) !important;
   border-color: var(--color-primary, #FF5E00) !important;
   color: var(--color-primary, #FF5E00) !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5) !important;
+  box-shadow: none !important;
   transform: translateY(-1px) !important;
 }
 
@@ -160,6 +179,7 @@
 
 .darkBtn:active:not(:disabled) {
   background-color: var(--color-bg-spotlight, #26262B) !important;
+  box-shadow: none !important;
   transform: translateY(0) !important;
 }
 

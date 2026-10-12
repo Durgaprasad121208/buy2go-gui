@@ -85,7 +85,7 @@ export const antdThemeConfig: ThemeConfig = {
       controlHeightSM: themeTokens.controlHeight.sm,
       fontWeight: 600,
       primaryColor: themeTokens.colors.primaryText, // black text on primary button
-      primaryShadow: '0 4px 14px rgba(255, 94, 0, 0.28)',
+      primaryShadow: 'none',
     },
   },
 };
