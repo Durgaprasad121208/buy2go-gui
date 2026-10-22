@@ -7,6 +7,7 @@ import { ProductInfo } from './pages/product-info/ProductInfo';
 import { Cart } from './pages/cart-checkout/Cart';
 import { AddProducts } from './pages/admin-pages/products/AddProducts';
 import { AllOrders } from './pages/admin-pages/orders/AllOrders';
+import { AuthPage } from './pages/auth/AuthPage';
 import './App.css';
 
 /**
@@ -45,17 +46,26 @@ export const ProtectedRoute: React.FC<RouteGuardProps> = ({ children }) => {
 function App() {
   return (
     <Routes>
-      {/* 1. Public Standalone Routes (e.g. Login, Register) */}
-      {/*
+      {/* 1. Public Standalone Routes (Sign In & Create Account) */}
       <Route
         path="/login"
         element={
           <PublicRoute>
-            <LoginPage />
+            <AuthPage defaultMode="signin" />
           </PublicRoute>
         }
       />
-      */}
+      <Route
+        path="/register"
+        element={
+          <PublicRoute>
+            <AuthPage defaultMode="signup" />
+          </PublicRoute>
+        }
+      />
+      <Route path="/signin" element={<Navigate to="/login" replace />} />
+      <Route path="/signup" element={<Navigate to="/register" replace />} />
+      <Route path="/admin/login" element={<Navigate to="/login" replace />} />
 
       {/* 2. Main Application Routes wrapped in MainLayout (Header + Outlet + Footer) */}
       <Route

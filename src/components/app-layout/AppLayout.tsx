@@ -58,7 +58,14 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
       <Content className={styles.content}>
         {children || <Outlet />}
       </Content>
-      <AppFooter />
+      <AppFooter
+        onAllProductsClick={handleProductsClick}
+        onCartClick={handleCartClick}
+        onShopOwnerLoginClick={() => {
+          navigate('/login');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }}
+      />
     </Layout>
   );
 };

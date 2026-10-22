@@ -54,7 +54,7 @@ export const AppFooter: React.FC<AppFooterProps> = ({
   onInstagramClick,
   allProductsHref = '#products',
   cartHref = '#cart',
-  shopOwnerLoginHref = '#login',
+  shopOwnerLoginHref = '/login',
   chatHref = '#chat',
   instagramHref = 'https://instagram.com',
   deliveryHref = '#shipping',

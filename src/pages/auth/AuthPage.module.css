@@ -1,0 +1,219 @@
+/* ==========================================================================
+   Buy2Go Authentication Page Styles (Sign In & Create Account)
+   Matches the deep dark theme & brand orange CTA buttons
+   ========================================================================== */
+
+.pageContainer {
+  min-height: 100vh;
+  width: 100%;
+  background-color: var(--color-bg-base, #0B0B0C);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 16px;
+  position: relative;
+  box-sizing: border-box;
+}
+
+/* Optional top navigation bar with logo */
+.topBar {
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.logoLink {
+  text-decoration: none;
+  display: inline-block;
+  transition: opacity 0.2s ease;
+}
+
+.logoLink:hover {
+  opacity: 0.85;
+}
+
+.logoText {
+  font-size: 24px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+
+.logoOrange {
+  color: var(--color-primary, #FF5E00);
+}
+
+.logoWhite {
+  color: #FFFFFF;
+}
+
+/* Header with Title and Subtitle */
+.headerSection {
+  text-align: center;
+  margin-bottom: 24px;
+  max-width: 520px;
+}
+
+.pageTitle {
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: #FFFFFF;
+  margin: 0 0 8px 0;
+  text-transform: uppercase;
+  font-family: var(--font-family-base, sans-serif);
+}
+
+.pageSubtitle {
+  font-size: 14px;
+  color: #9C8E85;
+  margin: 0;
+  line-height: 1.5;
+  font-family: var(--font-family-base, sans-serif);
+}
+
+/* Main Auth Card */
+.authCard {
+  width: 100%;
+  max-width: 440px;
+  background-color: var(--color-bg-container, #141416);
+  border: 1px solid var(--color-border-subtle, #242428);
+  border-radius: var(--border-radius-base, 8px);
+  padding: 32px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+  box-sizing: border-box;
+  transition: max-width 0.25s ease;
+}
+
+.authCardWide {
+  max-width: 500px;
+}
+
+/* Form Groups & Labels */
+.formGroup {
+  margin-bottom: 20px;
+}
+
+.formLabel {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #9E9EA8;
+  margin-bottom: 8px;
+}
+
+.inputField {
+  background-color: #0C0C0E !important;
+  border: 1px solid #28282E !important;
+  border-radius: 6px !important;
+  color: #FFFFFF !important;
+  height: 44px !important;
+  padding: 0 14px !important;
+  font-size: 14px !important;
+  transition: all 0.2s ease !important;
+}
+
+.inputField:hover {
+  border-color: #3E3E48 !important;
+}
+
+.inputField:focus,
+.inputField:focus-within {
+  border-color: var(--color-primary, #FF5E00) !important;
+  box-shadow: 0 0 0 2px rgba(255, 94, 0, 0.2) !important;
+  background-color: #0E0E12 !important;
+}
+
+.inputField input {
+  background: transparent !important;
+  color: #FFFFFF !important;
+}
+
+.inputField input::placeholder {
+  color: #55555E !important;
+}
+
+/* 2-Column Responsive Name Row */
+.nameRow {
+  display: flex;
+  gap: 16px;
+  width: 100%;
+}
+
+.nameCol {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Submit Action Button Container */
+.actionContainer {
+  margin-top: 24px;
+}
+
+.submitBtnOverride {
+  width: 100% !important;
+  height: 46px !important;
+  font-size: 15px !important;
+}
+
+/* Footer / Switch Mode Link */
+.switchModeContainer {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.switchLink {
+  background: none;
+  border: none;
+  color: var(--color-primary, #FF5E00);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 8px;
+  transition: color 0.15s ease, opacity 0.15s ease;
+  font-family: inherit;
+}
+
+.switchLink:hover {
+  color: var(--color-primary-hover, #FF7724);
+  text-decoration: underline;
+}
+
+/* Quick Back Link */
+.backLink {
+  margin-top: 24px;
+  color: #6E6E77;
+  font-size: 13px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: color 0.15s ease;
+}
+
+.backLink:hover {
+  color: #FFFFFF;
+}
+
+/* Responsive adjustments */
+@media (max-width: 540px) {
+  .pageContainer {
+    padding: 24px 14px;
+    justify-content: flex-start;
+  }
+
+  .pageTitle {
+    font-size: 26px;
+  }
+
+  .authCard {
+    padding: 24px 18px;
+    border-radius: 8px;
+  }
+
+  .nameRow {
+    flex-direction: column;
+    gap: 0;
+  }
+}

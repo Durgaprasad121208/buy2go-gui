@@ -22,7 +22,7 @@ import {
   ShoppingOutlined,
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
-import { SubmitButton, AppButton } from '../../components/app-button/AppButton';
+import { SubmitButton } from '../../components/app-button/AppButton';
 import keychainImg from '../../assests/1cliq-keychain.jpg';
 import styles from './Cart.module.css';
 
