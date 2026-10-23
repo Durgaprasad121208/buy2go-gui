@@ -233,16 +233,48 @@ export const orderService = {
   },
 
   /**
-   * Download any order photo from MinIO with direct attachment stream using downloadFile
-   * GET /api/orders/download-photo?url=...
+   * Download any order photo from MinIO by Order ID/number, item ID, photo ID, or direct URL
+   * GET /api/orders/download-photo?id={orderId}&url={photoUrl}
+   * Uses downloadFile({ url, params }) with arraybuffer and bearer token
    */
-  downloadPhotoByUrl: async (photoUrl: string, fileName?: string): Promise<void> => {
+  downloadPhoto: async (options: {
+    id?: string | number;
+    url?: string;
+    fileName?: string;
+  }): Promise<void> => {
+    const params: Record<string, string> = {};
+    if (options.id !== undefined && options.id !== null && String(options.id).trim() !== '') {
+      params.id = String(options.id).replace(/^#/, '').trim();
+    } else if (options.url) {
+      // If no ID is provided, pass object key or URL
+      const key = options.url.includes('/') ? options.url.split('/').pop() || options.url : options.url;
+      params.url = key;
+    }
+
     const data = await downloadFile({
       url: ORDER_DOWNLOAD_PHOTO_BY_URL_ENDPOINT,
-      params: { url: photoUrl },
+      params,
     });
-    const name = fileName || photoUrl.split("/").pop() || `order_photo_${Date.now()}.jpg`;
+
+    const fallbackName = `order_${params.id || 'photo'}_${Date.now()}.jpg`;
+    const name = options.fileName || fallbackName;
     triggerBlobDownload(data, name);
+  },
+
+  /**
+   * Download photo by Order ID/number directly
+   * GET /api/orders/download-photo?id={orderId}
+   */
+  downloadPhotoById: async (orderIdOrNumber: string | number, fileName?: string): Promise<void> => {
+    return orderService.downloadPhoto({ id: orderIdOrNumber, fileName });
+  },
+
+  /**
+   * Download any order photo from MinIO with direct attachment stream using downloadFile
+   * GET /api/orders/download-photo?id=... or url=...
+   */
+  downloadPhotoByUrl: async (photoUrl: string, fileName?: string, orderIdOrNumber?: string | number): Promise<void> => {
+    return orderService.downloadPhoto({ id: orderIdOrNumber, url: photoUrl, fileName });
   },
 
   /**

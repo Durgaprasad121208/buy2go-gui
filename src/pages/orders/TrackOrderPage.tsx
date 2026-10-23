@@ -106,7 +106,15 @@ export const TrackOrderPage: React.FC = () => {
   const handleDownloadItemPhoto = async (photoUrl: string, itemTitle: string, index: number) => {
     try {
       richNotify.info('Downloading your photo...');
-      await orderService.downloadPhotoByUrl(photoUrl, `${itemTitle.replace(/\s+/g, '_')}_photo_${index + 1}.jpg`);
+      const cleanNumber = trackedOrder?.orderNumber
+        ? trackedOrder.orderNumber.replace(/^#/, '').trim()
+        : '';
+      const targetId = cleanNumber || trackedOrder?.id;
+      await orderService.downloadPhoto({
+        id: targetId,
+        url: photoUrl,
+        fileName: `${itemTitle.replace(/\s+/g, '_')}_photo_${index + 1}.jpg`,
+      });
       richNotify.success('Photo downloaded successfully.');
     } catch (err) {
       console.error('Download photo error:', err);

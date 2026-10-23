@@ -290,11 +290,18 @@ export const AllOrders: React.FC = () => {
         }
     };
 
-    const handleDownloadPhoto = async (photoUrl: string, orderNumber: string, index?: number) => {
+    const handleDownloadPhoto = async (photoUrl: string, orderNumber: string, index?: number, orderId?: string | number) => {
         try {
             richNotify.info('Downloading customer photo...');
             const suffix = typeof index === 'number' ? `_photo_${index + 1}` : '_photo';
-            await orderService.downloadPhotoByUrl(photoUrl, `${orderNumber}${suffix}.jpg`);
+            const cleanNumber = orderNumber ? orderNumber.replace(/^#/, '').trim() : '';
+            // Pass the order ID or order number to /api/orders/download-photo?id=... for direct MinIO streaming
+            const targetId = cleanNumber || orderId;
+            await orderService.downloadPhoto({
+                id: targetId,
+                url: photoUrl,
+                fileName: `${cleanNumber || 'order'}${suffix}.jpg`
+            });
             richNotify.success('Photo downloaded successfully.');
         } catch (err: any) {
             console.error('Failed to download photo:', err);
@@ -520,7 +527,7 @@ export const AllOrders: React.FC = () => {
                                                                                     className={styles.photoDownloadBtn}
                                                                                     onClick={(e) => {
                                                                                         e.stopPropagation();
-                                                                                        handleDownloadPhoto(photo, ord.orderNumber, pIdx);
+                                                                                        handleDownloadPhoto(photo, ord.orderNumber, pIdx, ord.id);
                                                                                     }}
                                                                                     title="Download photo"
                                                                                 >
