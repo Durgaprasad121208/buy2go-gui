@@ -113,16 +113,18 @@ export const AppFooter: React.FC<AppFooterProps> = ({
               </li>
               <li>
                 <a
-                  href={shopOwnerLoginHref}
-                  onClick={(e) => {
-                    if (onShopOwnerLoginClick) {
-                      e.preventDefault();
-                      onShopOwnerLoginClick();
-                    }
-                  }}
+                  href="/track"
                   className={styles.footerLink}
                 >
-                  Shop owner login
+                  Track order
+                </a>
+              </li>
+              <li>
+                <a
+                  href="/my-orders"
+                  className={styles.footerLink}
+                >
+                  My orders
                 </a>
               </li>
             </ul>

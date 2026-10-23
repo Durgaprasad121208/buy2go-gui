@@ -61,10 +61,6 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
       <AppFooter
         onAllProductsClick={handleProductsClick}
         onCartClick={handleCartClick}
-        onShopOwnerLoginClick={() => {
-          navigate('/login');
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        }}
       />
     </Layout>
   );

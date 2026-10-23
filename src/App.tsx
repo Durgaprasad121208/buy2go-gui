@@ -10,6 +10,7 @@ import { AddProducts } from './pages/admin-pages/products/AddProducts';
 import { AllOrders } from './pages/admin-pages/orders/AllOrders';
 import { AdminDashboard } from './pages/admin-pages/dashboard/AdminDashboard';
 import { TrackOrderPage } from './pages/orders/TrackOrderPage';
+import { MyOrdersPage } from './pages/orders/MyOrdersPage';
 import { AuthPage } from './pages/auth/AuthPage';
 import { useAppSelector } from './redux/hooks';
 import { selectAuthUser, checkIsAdmin } from './redux/slices/authSlice';
@@ -28,7 +29,7 @@ export const customerRoutes = [
   { path: 'checkout', element: Cart },
   { path: 'track', element: TrackOrderPage },
   { path: 'track/:orderNumber', element: TrackOrderPage },
-  { path: 'my-orders', element: TrackOrderPage },
+  { path: 'my-orders', element: MyOrdersPage },
 ];
 
 export const adminRoutes = [

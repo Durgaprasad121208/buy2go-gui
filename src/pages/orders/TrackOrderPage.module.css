@@ -405,3 +405,101 @@
   color: #8C867E;
   font-size: 12px;
 }
+
+/* ==========================================================================
+   Mobile & Tablet Responsiveness for TrackOrderPage
+   ========================================================================== */
+
+@media (max-width: 768px) {
+  .pageContainer {
+    padding: 24px 16px 60px;
+  }
+
+  .title {
+    font-size: 24px;
+  }
+
+  .searchRow {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .searchBtn {
+    width: 100%;
+    height: 44px !important;
+  }
+
+  .orderDetailCard {
+    padding: 16px;
+  }
+
+  .orderTopBar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .orderTopRight {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .timelineSection {
+    padding: 16px 12px;
+  }
+
+  .stepsRow {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 12px;
+  }
+
+  .stepItem {
+    min-width: 80px;
+  }
+
+  .stepTitle {
+    font-size: 10px;
+  }
+
+  .itemCard {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .itemLeft {
+    width: 100%;
+  }
+
+  .itemPhotosWrapper {
+    width: 100%;
+    justify-content: flex-start;
+    padding-top: 10px;
+    border-top: 1px dashed rgba(255, 255, 255, 0.08);
+  }
+
+  .myOrdersGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .pageContainer {
+    padding: 16px 12px 48px;
+  }
+
+  .title {
+    font-size: 20px;
+  }
+
+  .orderNumText {
+    font-size: 16px;
+  }
+
+  .totalValue {
+    font-size: 20px;
+  }
+}
+

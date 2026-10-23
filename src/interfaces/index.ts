@@ -130,6 +130,8 @@ export interface Buy2GoOrder {
   customer?: CustomerDetail;
   items?: OrderItemDetail[];
   photo?: string;
+  photoId?: string;
+  photos?: string[];
   shipment?: ShipmentDetail;
   statusHistory?: OrderStatusHistory[];
   createdAt?: string;

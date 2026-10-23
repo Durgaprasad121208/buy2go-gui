@@ -1,12 +1,17 @@
-import React from 'react';
-import { Layout } from 'antd';
+import React, { useState } from 'react';
+import { Layout, Drawer } from 'antd';
 import {
   ShoppingOutlined,
   LogoutOutlined,
   UserOutlined,
   DashboardOutlined,
+  MenuOutlined,
+  CloseOutlined,
+  SearchOutlined,
+  FileTextOutlined,
+  AppstoreOutlined,
 } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { DarkButton } from '../app-button/AppButton';
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
 import { logout, selectAuthUser, selectIsAdmin, selectIsAuthenticated } from '../../redux/slices/authSlice';
@@ -32,6 +37,7 @@ export interface AppHeaderProps {
 /**
  * AppHeader - Main application header using Ant Design Layout.Header
  * Styled with single dark e-commerce theme and brand orange accents.
+ * Fully responsive on Mobile, Tablet, and Desktop with mobile drawer navigation.
  */
 export const AppHeader: React.FC<AppHeaderProps> = ({
   logoTextOrange = 'BUY',
@@ -47,10 +53,13 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   style,
 }) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const dispatch = useAppDispatch();
   const user = useAppSelector(selectAuthUser);
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
   const isAdmin = useAppSelector(selectIsAdmin);
+
+  const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
 
   const handleLogoClick = (e: React.MouseEvent) => {
     if (onLogoClick) {
@@ -60,107 +69,297 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   };
 
   const handleProductsClick = (e: React.MouseEvent) => {
+    setMobileMenuOpen(false);
     if (onProductsClick) {
       e.preventDefault();
       onProductsClick();
+    } else {
+      navigate('/products');
     }
   };
 
   const handleSignOut = () => {
+    setMobileMenuOpen(false);
     dispatch(logout());
     richNotify.success('Signed out successfully.');
     navigate('/login');
   };
 
+  const handleMobileNav = (path: string) => {
+    setMobileMenuOpen(false);
+    navigate(path);
+  };
+
   return (
-    <Header className={`${styles.header} ${className}`.trim()} style={style}>
-      {/* Brand Logo */}
-      <a
-        href={logoHref || '/'}
-        onClick={handleLogoClick}
-        className={styles.logoContainer}
-        aria-label="Buy2Go Home"
-      >
-        <div className={styles.logoText}>
-          <span className={styles.logoOrange}>{logoTextOrange}</span>
-          <span className={styles.logoWhite}>{logoTextWhite}</span>
-        </div>
-      </a>
-
-      {/* Right Navigation & Cart */}
-      <div className={styles.navActions}>
+    <>
+      <Header className={`${styles.header} ${className}`.trim()} style={style}>
+        {/* Brand Logo */}
         <a
-          href={productsHref}
-          onClick={handleProductsClick}
-          className={styles.navLink}
+          href={logoHref || '/'}
+          onClick={handleLogoClick}
+          className={styles.logoContainer}
+          aria-label="Buy2Go Home"
         >
-          Products
+          <div className={styles.logoText}>
+            <span className={styles.logoOrange}>{logoTextOrange}</span>
+            <span className={styles.logoWhite}>{logoTextWhite}</span>
+          </div>
         </a>
 
-        <a
-          href="/track"
-          onClick={(e) => {
-            e.preventDefault();
-            navigate('/track');
-          }}
-          className={styles.navLink}
-        >
-          Track Order
-        </a>
-
-        {/* Admin Dashboard Quick Link for ROLE_ADMIN */}
-        {isAdmin && (
+        {/* Desktop Navigation Links */}
+        <div className={styles.desktopNav}>
           <a
-            href="/admin/dashboard"
+            href={productsHref}
+            onClick={handleProductsClick}
+            className={`${styles.navLink} ${
+              location.pathname === '/products' ? styles.navLinkActive : ''
+            }`}
+          >
+            Products
+          </a>
+
+          <a
+            href="/track"
             onClick={(e) => {
               e.preventDefault();
-              navigate('/admin/dashboard');
+              navigate('/track');
             }}
-            className={styles.adminLink}
+            className={`${styles.navLink} ${
+              location.pathname.startsWith('/track') ? styles.navLinkActive : ''
+            }`}
           >
-            <span>Admin</span>
+            Track Order
           </a>
-        )}
 
-        <DarkButton
-          onClick={onCartClick}
-          className={styles.cartBtn}
-          icon={<ShoppingOutlined className={styles.cartIcon} />}
-        >
-          <span>Cart</span>
-          {typeof cartCount === 'number' && cartCount > 0 && (
-            <span className={styles.cartBadge}>{cartCount}</span>
+          <a
+            href="/my-orders"
+            onClick={(e) => {
+              e.preventDefault();
+              navigate('/my-orders');
+            }}
+            className={`${styles.navLink} ${
+              location.pathname === '/my-orders' ? styles.navLinkActive : ''
+            }`}
+          >
+            My Orders
+          </a>
+
+          {/* Admin Dashboard Quick Link for ROLE_ADMIN */}
+          {isAdmin && (
+            <a
+              href="/admin/dashboard"
+              onClick={(e) => {
+                e.preventDefault();
+                navigate('/admin/dashboard');
+              }}
+              className={styles.adminLink}
+            >
+              <DashboardOutlined />
+              <span>Admin</span>
+            </a>
           )}
-        </DarkButton>
+        </div>
 
-        {/* Sign In / Sign Out actions */}
-        {isAuthenticated ? (
+        {/* Right Actions (Cart, Auth, Mobile Menu Toggle) */}
+        <div className={styles.headerRight}>
+          <DarkButton
+            onClick={onCartClick}
+            className={styles.cartBtn}
+            icon={<ShoppingOutlined className={styles.cartIcon} />}
+          >
+            <span className={styles.cartBtnText}>Cart</span>
+            {typeof cartCount === 'number' && cartCount > 0 && (
+              <span className={styles.cartBadge}>{cartCount}</span>
+            )}
+          </DarkButton>
+
+          {/* Desktop Sign In / Sign Out */}
+          <div className={styles.desktopAuth}>
+            {isAuthenticated ? (
+              <button
+                type="button"
+                onClick={handleSignOut}
+                className={styles.authBtn}
+                title={`Signed in as ${
+                  user?.userName || user?.email || (isAdmin ? 'Admin' : 'Customer')
+                }`}
+              >
+                <LogoutOutlined />
+                <span>Sign out</span>
+              </button>
+            ) : (
+              <a
+                href="/login"
+                onClick={(e) => {
+                  e.preventDefault();
+                  navigate('/login');
+                }}
+                className={styles.authBtn}
+              >
+                <UserOutlined />
+                <span>Sign in</span>
+              </a>
+            )}
+          </div>
+
+          {extraRight}
+
+          {/* Mobile Hamburger Toggle Button */}
           <button
             type="button"
-            onClick={handleSignOut}
-            className={styles.authBtn}
-            title={`Signed in as ${user?.userName || user?.email || (isAdmin ? 'Admin' : 'Customer')}`}
+            className={styles.mobileMenuToggle}
+            onClick={() => setMobileMenuOpen(true)}
+            aria-label="Open mobile navigation menu"
           >
-            <LogoutOutlined />
-            <span>Sign out</span>
+            <MenuOutlined />
           </button>
-        ) : (
-          <a
-            href="/login"
-            onClick={(e) => {
-              e.preventDefault();
-              navigate('/login');
-            }}
-            className={styles.authBtn}
-          >
-            <UserOutlined />
-            <span>Sign in</span>
-          </a>
-        )}
+        </div>
+      </Header>
 
-        {extraRight}
-      </div>
-    </Header>
+      {/* Mobile Drawer Navigation */}
+      <Drawer
+        placement="right"
+        onClose={() => setMobileMenuOpen(false)}
+        open={mobileMenuOpen}
+        closable={false}
+        className={styles.mobileDrawer}
+        styles={{
+          body: {
+            backgroundColor: '#0D0907',
+            padding: '24px 20px',
+            color: '#FFFFFF',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+          },
+          wrapper: {
+            maxWidth: '300px',
+            width: '85%',
+          },
+        }}
+      >
+        <div>
+          {/* Drawer Top Header with Logo & Close */}
+          <div className={styles.drawerHeader}>
+            <div className={styles.logoText}>
+              <span className={styles.logoOrange}>{logoTextOrange}</span>
+              <span className={styles.logoWhite}>{logoTextWhite}</span>
+            </div>
+            <button
+              type="button"
+              className={styles.drawerCloseBtn}
+              onClick={() => setMobileMenuOpen(false)}
+              aria-label="Close menu"
+            >
+              <CloseOutlined />
+            </button>
+          </div>
+
+          {/* User Greeting if Authenticated */}
+          {isAuthenticated && (
+            <div className={styles.drawerUserBox}>
+              <div className={styles.drawerUserIcon}>
+                <UserOutlined />
+              </div>
+              <div>
+                <div className={styles.drawerUserName}>
+                  {user?.userName || user?.email?.split('@')[0] || 'Customer'}
+                </div>
+                <div className={styles.drawerUserRole}>
+                  {isAdmin ? 'ADMINISTRATOR' : 'VERIFIED CUSTOMER'}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Drawer Navigation Links */}
+          <nav className={styles.drawerNav}>
+            <button
+              type="button"
+              className={`${styles.drawerNavLink} ${
+                location.pathname === '/products' ? styles.drawerNavLinkActive : ''
+              }`}
+              onClick={handleProductsClick}
+            >
+              <AppstoreOutlined className={styles.drawerNavIcon} />
+              <span>Products</span>
+            </button>
+
+            <button
+              type="button"
+              className={`${styles.drawerNavLink} ${
+                location.pathname.startsWith('/track') ? styles.drawerNavLinkActive : ''
+              }`}
+              onClick={() => handleMobileNav('/track')}
+            >
+              <SearchOutlined className={styles.drawerNavIcon} />
+              <span>Track Order</span>
+            </button>
+
+            <button
+              type="button"
+              className={`${styles.drawerNavLink} ${
+                location.pathname === '/my-orders' ? styles.drawerNavLinkActive : ''
+              }`}
+              onClick={() => handleMobileNav('/my-orders')}
+            >
+              <FileTextOutlined className={styles.drawerNavIcon} />
+              <span>My Orders</span>
+            </button>
+
+            {isAdmin && (
+              <button
+                type="button"
+                className={`${styles.drawerNavLink} ${styles.drawerAdminLink}`}
+                onClick={() => handleMobileNav('/admin/dashboard')}
+              >
+                <DashboardOutlined className={styles.drawerNavIcon} />
+                <span>Admin Dashboard</span>
+              </button>
+            )}
+
+            <button
+              type="button"
+              className={styles.drawerNavLink}
+              onClick={() => {
+                setMobileMenuOpen(false);
+                if (onCartClick) onCartClick();
+                else navigate('/cart');
+              }}
+            >
+              <ShoppingOutlined className={styles.drawerNavIcon} />
+              <span>Your Cart</span>
+              {typeof cartCount === 'number' && cartCount > 0 && (
+                <span className={styles.drawerCartBadge}>{cartCount}</span>
+              )}
+            </button>
+          </nav>
+        </div>
+
+        {/* Drawer Bottom Auth Section */}
+        <div className={styles.drawerFooter}>
+          {isAuthenticated ? (
+            <button
+              type="button"
+              onClick={handleSignOut}
+              className={styles.drawerSignOutBtn}
+            >
+              <LogoutOutlined />
+              <span>Sign out</span>
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => handleMobileNav('/login')}
+              className={styles.drawerSignInBtn}
+            >
+              <UserOutlined />
+              <span>Sign in</span>
+            </button>
+          )}
+        </div>
+      </Drawer>
+    </>
   );
 };
 

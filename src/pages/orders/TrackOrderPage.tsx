@@ -298,7 +298,16 @@ export const TrackOrderPage: React.FC = () => {
         {/* My Orders (Customer Account) */}
         {isAuthenticated && myOrders.length > 0 && (
           <div className={styles.myOrdersSection}>
-            <h2 className={styles.myOrdersTitle}>Your Past Orders</h2>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, flexWrap: 'wrap', gap: 12 }}>
+              <h2 className={styles.myOrdersTitle} style={{ margin: 0 }}>Your Past Orders</h2>
+              <Button
+                type="link"
+                onClick={() => navigate('/my-orders')}
+                style={{ color: '#FF5E00', padding: 0, fontWeight: 700 }}
+              >
+                View Full Order History →
+              </Button>
+            </div>
             <div className={styles.myOrdersGrid}>
               {myOrders.map((ord) => {
                 const isActive = trackedOrder?.id === ord.id;
