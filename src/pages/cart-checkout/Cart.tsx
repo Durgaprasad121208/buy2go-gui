@@ -11,6 +11,7 @@ import {
   Modal,
   Badge,
   Tag,
+  Button,
 } from 'antd';
 import { richNotify } from '../../utils/notify';
 import {
@@ -542,9 +543,30 @@ export const Cart: React.FC = () => {
         onCancel={handleModalClose}
         centered
         footer={[
+          <Button
+            key="track"
+            onClick={() => {
+              const ordId = placedOrder?.orderId?.replace(/^#/, '');
+              setIsSuccessModalOpen(false);
+              form.resetFields();
+              navigate(ordId ? `/track/${ordId}` : '/track');
+            }}
+            style={{
+              height: 40,
+              borderRadius: 4,
+              fontWeight: 700,
+              backgroundColor: '#1C1714',
+              color: '#FF5E00',
+              borderColor: '#FF5E00',
+              marginRight: 8,
+            }}
+          >
+            Track Order
+          </Button>,
           <SubmitButton
             key="ok"
             onClick={handleModalClose}
+            style={{ height: 40, borderRadius: 4 }}
           >
             Continue Shopping
           </SubmitButton>,

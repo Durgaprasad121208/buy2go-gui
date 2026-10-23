@@ -267,11 +267,10 @@ export const downloadFile = async ({ url, params }: DownloadFileOptions): Promis
   const URL = queryString ? `${url}?${queryString}` : url;
 
   try {
+    const token = Cookies.get("accessToken");
     const response = await axios.get(URL, {
       responseType: "arraybuffer",
-      headers: {
-        Authorization: `Bearer ${Cookies.get("accessToken")}`,
-      },
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
     });
     return response.data;
   } catch (error) {

@@ -450,6 +450,30 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
   background-color: #1C1714;
   flex-shrink: 0;
+  position: relative;
+}
+
+.photoDownloadBtn {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  background-color: rgba(0, 0, 0, 0.75);
+  border: none;
+  color: #FF5E00;
+  width: 22px;
+  height: 22px;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 11px;
+  transition: all 0.2s ease;
+}
+
+.photoDownloadBtn:hover {
+  background-color: #FF5E00;
+  color: #000000;
 }
 
 .photoImg {

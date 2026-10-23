@@ -290,6 +290,18 @@ export const AllOrders: React.FC = () => {
         }
     };
 
+    const handleDownloadPhoto = async (photoUrl: string, orderNumber: string, index?: number) => {
+        try {
+            richNotify.info('Downloading customer photo...');
+            const suffix = typeof index === 'number' ? `_photo_${index + 1}` : '_photo';
+            await orderService.downloadPhotoByUrl(photoUrl, `${orderNumber}${suffix}.jpg`);
+            richNotify.success('Photo downloaded successfully.');
+        } catch (err: any) {
+            console.error('Failed to download photo:', err);
+            richNotify.error('Could not download photo.');
+        }
+    };
+
     return (
         <div className={styles.ordersContainer}>
             <div className={styles.contentWrapper}>
@@ -301,8 +313,15 @@ export const AllOrders: React.FC = () => {
                     </div>
                 </div>
 
-                {/* Tabs Navigation (ORDERS / PRODUCTS) */}
+                {/* Tabs Navigation (DASHBOARD / ORDERS / PRODUCTS) */}
                 <div className={styles.tabsNav}>
+                    <button
+                        type="button"
+                        className={styles.tabItem}
+                        onClick={() => navigate('/admin/dashboard')}
+                    >
+                        DASHBOARD
+                    </button>
                     <button
                         type="button"
                         className={`${styles.tabItem} ${styles.tabItemActive}`}
@@ -496,6 +515,17 @@ export const AllOrders: React.FC = () => {
                                                                                     alt={`Customer upload ${pIdx + 1}`}
                                                                                     className={styles.photoImg}
                                                                                 />
+                                                                                <button
+                                                                                    type="button"
+                                                                                    className={styles.photoDownloadBtn}
+                                                                                    onClick={(e) => {
+                                                                                        e.stopPropagation();
+                                                                                        handleDownloadPhoto(photo, ord.orderNumber, pIdx);
+                                                                                    }}
+                                                                                    title="Download photo"
+                                                                                >
+                                                                                    <DownloadOutlined />
+                                                                                </button>
                                                                             </div>
                                                                         ))}
                                                                     </div>

@@ -524,8 +524,15 @@ export const AddProducts: React.FC = () => {
           </div>
         </div>
 
-        {/* Tabs Navigation (ORDERS / PRODUCTS) */}
+        {/* Tabs Navigation (DASHBOARD / ORDERS / PRODUCTS) */}
         <div className={styles.tabsNav}>
+          <button
+            type="button"
+            className={styles.tabItem}
+            onClick={() => navigate('/admin/dashboard')}
+          >
+            DASHBOARD
+          </button>
           <button
             type="button"
             className={styles.tabItem}

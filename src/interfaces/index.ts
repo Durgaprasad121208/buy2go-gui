@@ -166,3 +166,19 @@ export interface ItemCustomizationPayload {
   printNotes?: string;
   photos?: string[];
 }
+
+export interface DashboardMetrics {
+  totalOrders: number;
+  totalRevenue: number;
+  totalProducts: number;
+  liveProducts: number;
+  statusCounts: Record<string, number>;
+  recentOrders?: Buy2GoOrder[];
+}
+
+export type RevenueTrendFilterType = 'DAY' | 'WEEK' | 'MONTH' | 'YEAR';
+
+export interface CustomerOrdersQueryParams {
+  email?: string;
+  phone?: string;
+}

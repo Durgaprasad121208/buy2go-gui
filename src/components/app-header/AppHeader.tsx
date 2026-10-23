@@ -97,13 +97,24 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
           Products
         </a>
 
+        <a
+          href="/track"
+          onClick={(e) => {
+            e.preventDefault();
+            navigate('/track');
+          }}
+          className={styles.navLink}
+        >
+          Track Order
+        </a>
+
         {/* Admin Dashboard Quick Link for ROLE_ADMIN */}
         {isAdmin && (
           <a
-            href="/admin/orders"
+            href="/admin/dashboard"
             onClick={(e) => {
               e.preventDefault();
-              navigate('/admin/orders');
+              navigate('/admin/dashboard');
             }}
             className={styles.adminLink}
           >

@@ -1,0 +1,427 @@
+.dashboardContainer {
+  min-height: calc(100vh - 72px);
+  background-color: #0B0806;
+  color: #F5F2EB;
+  padding: 32px 24px 64px 24px;
+}
+
+.contentWrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Header Top */
+.headerTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.ownerTag {
+  color: #FF5E00;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  display: inline-block;
+}
+
+.pageTitle {
+  color: #FFFFFF;
+  font-size: clamp(24px, 3.5vw, 32px);
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.headerActions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.actionBtn {
+  background-color: #14100E;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #F5F2EB;
+  font-size: 13px;
+  font-weight: 600;
+  height: 40px;
+  padding: 0 16px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.actionBtn:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.25);
+  color: #FF5E00;
+}
+
+/* Navigation Tabs */
+.tabsNav {
+  display: flex;
+  gap: 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  margin-bottom: 28px;
+  overflow-x: auto;
+}
+
+.tabItem {
+  background: none;
+  border: none;
+  color: #8C867E;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0 0 14px 0;
+  cursor: pointer;
+  position: relative;
+  transition: color 0.2s ease;
+  flex-shrink: 0;
+}
+
+.tabItem:hover {
+  color: #FF5E00;
+}
+
+.tabItemActive {
+  color: #FF5E00;
+}
+
+.tabItemActive::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: #FF5E00;
+}
+
+/* KPI Cards */
+.kpiCard {
+  background-color: #14100E;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  padding: 20px;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.kpiCard:hover {
+  border-color: rgba(255, 94, 0, 0.35);
+  transform: translateY(-2px);
+}
+
+.kpiHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.kpiLabel {
+  color: #8C867E;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.kpiIconWrapper {
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  background-color: rgba(255, 94, 0, 0.1);
+  color: #FF5E00;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+
+.kpiValue {
+  color: #FFFFFF;
+  font-size: clamp(26px, 3.5vw, 36px);
+  font-weight: 900;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin-bottom: 4px;
+}
+
+.kpiSubtext {
+  color: #6E6860;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Main Section Blocks */
+.sectionCard {
+  background-color: #14100E;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.sectionTitle {
+  color: #FFFFFF;
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sectionTitleIcon {
+  color: #FF5E00;
+}
+
+/* Filter Period Segmented / Buttons */
+.periodFilterGroup {
+  display: flex;
+  background-color: #0E0B09;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+  padding: 3px;
+  gap: 4px;
+}
+
+.periodBtn {
+  background: none;
+  border: none;
+  color: #8C867E;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 5px 12px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.periodBtn:hover {
+  color: #FFFFFF;
+}
+
+.periodBtnActive {
+  background-color: #FF5E00;
+  color: #000000;
+  font-weight: 800;
+}
+
+/* Revenue Trend Visual Bars */
+.trendChartContainer {
+  min-height: 180px;
+  display: flex;
+  align-items: flex-end;
+  gap: 14px;
+  padding-top: 30px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  overflow-x: auto;
+}
+
+.trendBarCol {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  min-width: 48px;
+  height: 100%;
+  justify-content: flex-end;
+}
+
+.trendBar {
+  width: 100%;
+  max-width: 38px;
+  background: linear-gradient(180deg, #FF5E00 0%, rgba(255, 94, 0, 0.25) 100%);
+  border-radius: 4px 4px 0 0;
+  transition: height 0.4s ease, filter 0.2s ease;
+  position: relative;
+  cursor: pointer;
+}
+
+.trendBar:hover {
+  filter: brightness(1.25);
+}
+
+.trendBarVal {
+  color: #FFFFFF;
+  font-size: 11px;
+  font-weight: 700;
+  margin-bottom: 6px;
+  text-align: center;
+}
+
+.trendBarLabel {
+  color: #8C867E;
+  font-size: 11px;
+  font-weight: 600;
+  margin-top: 8px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* Status Breakdown Bars */
+.statusBreakdownGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.statusRow {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.statusRowTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+}
+
+.statusName {
+  font-weight: 700;
+  color: #E2DDD5;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.statusDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.statusCount {
+  color: #8C867E;
+  font-weight: 600;
+}
+
+.progressBarBg {
+  width: 100%;
+  height: 8px;
+  background-color: rgba(255, 255, 255, 0.06);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progressBarFill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.5s ease;
+}
+
+/* Recent Orders Table */
+.recentTableWrapper {
+  overflow-x: auto;
+}
+
+.recentTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.recentTable th {
+  text-align: left;
+  color: #8C867E;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.recentTable td {
+  padding: 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  color: #E2DDD5;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.recentTable tr:hover td {
+  background-color: rgba(255, 255, 255, 0.02);
+}
+
+.orderNumLink {
+  color: #FF5E00;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.orderNumLink:hover {
+  text-decoration: underline;
+}
+
+.statusBadge {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 3px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.statusNew {
+  background-color: rgba(255, 94, 0, 0.15);
+  color: #FF5E00;
+}
+
+.statusConfirmed {
+  background-color: rgba(24, 144, 255, 0.15);
+  color: #1890ff;
+}
+
+.statusPrinting {
+  background-color: rgba(114, 46, 209, 0.15);
+  color: #9254de;
+}
+
+.statusShipped {
+  background-color: rgba(250, 140, 22, 0.15);
+  color: #fa8c16;
+}
+
+.statusDelivered {
+  background-color: rgba(82, 196, 26, 0.15);
+  color: #52c41a;
+}
+
+.statusCancelled {
+  background-color: rgba(255, 77, 79, 0.15);
+  color: #ff4d4f;
+}

@@ -2,6 +2,7 @@ import {
   GetAPIRequest,
   PostAPIRequest,
   PutAPIRequest,
+  DeleteAPIRequest,
   FreeGetAPIRequest,
   fileUpload,
   downloadFile,
@@ -13,10 +14,17 @@ import {
   ORDER_SHIPMENT_ENDPOINT,
   ORDER_CANCEL_ENDPOINT,
   ORDER_UPLOAD_PHOTO_ENDPOINT,
+  ORDER_UPLOAD_PHOTOS_ENDPOINT,
+  ORDER_PHOTO_ENDPOINT,
+  ORDER_ITEM_PHOTO_ENDPOINT,
+  ORDER_DOWNLOAD_PHOTO_BY_URL_ENDPOINT,
+  ORDER_DOWNLOAD_PHOTO_BY_ID_ENDPOINT,
+  ORDER_ITEM_DOWNLOAD_PHOTO_ENDPOINT,
   ORDER_CREATE_ENDPOINT,
   ORDER_BULK_CREATE_ENDPOINT,
   ORDER_TRACK_ENDPOINT,
   ORDER_MY_ORDERS_ENDPOINT,
+  ORDER_CUSTOMER_ENDPOINT,
   ORDER_DOWNLOAD_EXCEL_ENDPOINT,
   ORDER_ITEM_CUSTOMIZATION_ENDPOINT,
 } from "../constants/constants";
@@ -29,6 +37,7 @@ import {
   ApiResponse,
   PaginatedResponse,
   OrderStatus,
+  CustomerOrdersQueryParams,
 } from "../interfaces";
 import Cookies from "js-cookie";
 
@@ -190,7 +199,8 @@ export const orderService = {
       formData = new FormData();
       formData.append("file", file);
     }
-    return fileUpload(ORDER_UPLOAD_PHOTO_ENDPOINT, formData);
+    const res = await fileUpload(ORDER_UPLOAD_PHOTO_ENDPOINT, formData);
+    return typeof res === "string" ? res : res?.data?.url || res?.data || "";
   },
 
   /**
@@ -209,6 +219,126 @@ export const orderService = {
   },
 
   /**
+   * Upload multiple photos to MinIO for product printing
+   * Returns list of MinIO URL strings
+   * POST /api/orders/upload-photos
+   */
+  uploadMultipleOrderPhotos: async (files: File[] | FileList): Promise<string[]> => {
+    const formData = new FormData();
+    Array.from(files).forEach((file) => {
+      formData.append("files", file);
+    });
+    const res = await fileUpload(ORDER_UPLOAD_PHOTOS_ENDPOINT, formData);
+    return res?.data || res || [];
+  },
+
+  /**
+   * Download any order photo from MinIO with direct attachment stream using downloadFile
+   * GET /api/orders/download-photo?url=...
+   */
+  downloadPhotoByUrl: async (photoUrl: string, fileName?: string): Promise<void> => {
+    const data = await downloadFile({
+      url: ORDER_DOWNLOAD_PHOTO_BY_URL_ENDPOINT,
+      params: { url: photoUrl },
+    });
+    const name = fileName || photoUrl.split("/").pop() || `order_photo_${Date.now()}.jpg`;
+    triggerBlobDownload(data, name);
+  },
+
+  /**
+   * Download primary photo for order
+   * GET /api/orders/{id}/download-photo
+   */
+  downloadOrderPhoto: async (orderId: string | number, fileName?: string): Promise<void> => {
+    const data = await downloadFile({
+      url: ORDER_DOWNLOAD_PHOTO_BY_ID_ENDPOINT(orderId),
+    });
+    const name = fileName || `order_${orderId}_primary_${Date.now()}.jpg`;
+    triggerBlobDownload(data, name);
+  },
+
+  /**
+   * Download customized photo for specific order item
+   * GET /api/orders/{id}/items/{itemId}/download-photo
+   */
+  downloadOrderItemPhoto: async (
+    orderId: string | number,
+    itemId: string | number,
+    fileName?: string
+  ): Promise<void> => {
+    const data = await downloadFile({
+      url: ORDER_ITEM_DOWNLOAD_PHOTO_ENDPOINT(orderId, itemId),
+    });
+    const name = fileName || `order_${orderId}_item_${itemId}_${Date.now()}.jpg`;
+    triggerBlobDownload(data, name);
+  },
+
+  /**
+   * Update order-level photo URL
+   * PUT /api/orders/{id}/photo?photoUrl=...
+   */
+  updateOrderPhoto: async (
+    orderId: string | number,
+    photoUrl: string
+  ): Promise<ApiResponse<Buy2GoOrder>> => {
+    return PutAPIRequest({
+      url: ORDER_PHOTO_ENDPOINT(orderId),
+      params: { photoUrl },
+    });
+  },
+
+  /**
+   * Remove order-level photo
+   * DELETE /api/orders/{id}/photo
+   */
+  removeOrderPhoto: async (orderId: string | number): Promise<ApiResponse<Buy2GoOrder>> => {
+    return DeleteAPIRequest({
+      url: ORDER_PHOTO_ENDPOINT(orderId),
+    });
+  },
+
+  /**
+   * Update single photo URL on an order item
+   * PUT /api/orders/{id}/items/{itemId}/photo?photoUrl=...
+   */
+  updateOrderItemPhoto: async (
+    orderId: string | number,
+    itemId: string | number,
+    photoUrl: string
+  ): Promise<ApiResponse<Buy2GoOrder>> => {
+    return PutAPIRequest({
+      url: ORDER_ITEM_PHOTO_ENDPOINT(orderId, itemId),
+      params: { photoUrl },
+    });
+  },
+
+  /**
+   * Remove photo from an order item
+   * DELETE /api/orders/{id}/items/{itemId}/photo
+   */
+  removeOrderItemPhoto: async (
+    orderId: string | number,
+    itemId: string | number
+  ): Promise<ApiResponse<Buy2GoOrder>> => {
+    return DeleteAPIRequest({
+      url: ORDER_ITEM_PHOTO_ENDPOINT(orderId, itemId),
+    });
+  },
+
+  /**
+   * Get all orders for a customer by email or phone number
+   * GET /api/orders/customer
+   */
+  getOrdersByCustomer: async (
+    params: CustomerOrdersQueryParams
+  ): Promise<ApiResponse<Buy2GoOrder[]>> => {
+    return FreeGetAPIRequest({
+      url: ORDER_CUSTOMER_ENDPOINT,
+      params,
+    });
+  },
+
+  /**
    * Download orders Excel report (Apache POI)
    * GET /api/orders/download-excel
    */
@@ -218,18 +348,28 @@ export const orderService = {
       url: ORDER_DOWNLOAD_EXCEL_ENDPOINT,
       params,
     });
-    const blob = new Blob([data], {
-      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    });
-    const downloadUrl = window.URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = downloadUrl;
-    link.download = `orders_${status || "all"}_${Date.now()}.xlsx`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    window.URL.revokeObjectURL(downloadUrl);
+    triggerBlobDownload(
+      data,
+      `orders_${status || "all"}_${Date.now()}.xlsx`,
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    );
   },
+};
+
+const triggerBlobDownload = (
+  data: ArrayBuffer | Blob,
+  fileName: string,
+  mimeType: string = "image/jpeg"
+) => {
+  const blob = data instanceof Blob ? data : new Blob([data], { type: mimeType });
+  const downloadUrl = window.URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = downloadUrl;
+  link.download = fileName;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  window.URL.revokeObjectURL(downloadUrl);
 };
 
 export default orderService;
