@@ -43,3 +43,55 @@ body {
   background-color: var(--color-primary);
   color: var(--color-primary-text);
 }
+
+/* ==========================================================================
+   Ant Design Notification & Message Global Dark Theme Overrides
+   ========================================================================== */
+.ant-notification-notice {
+  background-color: #14100E !important;
+  border: 1px solid rgba(255, 94, 0, 0.4) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 10px 30px -4px rgba(0, 0, 0, 0.8), 0 0 16px rgba(255, 94, 0, 0.12) !important;
+  color: #FFFFFF !important;
+  padding: 14px 18px !important;
+}
+
+.ant-notification-notice-message {
+  color: #FFFFFF !important;
+  font-weight: 700 !important;
+  font-size: 14px !important;
+  margin-bottom: 2px !important;
+}
+
+.ant-notification-notice-description {
+  color: #B5AEA4 !important;
+  font-size: 13px !important;
+}
+
+.ant-notification-notice-close {
+  color: #8C867E !important;
+  top: 14px !important;
+  right: 14px !important;
+  transition: color 0.2s ease !important;
+}
+
+.ant-notification-notice-close:hover {
+  color: #FF5E00 !important;
+}
+
+.ant-notification-notice-icon-success {
+  color: #FF5E00 !important;
+}
+
+.ant-notification-notice-icon-info {
+  color: #FF5E00 !important;
+}
+
+.ant-notification-notice-icon-warning {
+  color: #F59E0B !important;
+}
+
+.ant-notification-notice-icon-error {
+  color: #EF4444 !important;
+}
+

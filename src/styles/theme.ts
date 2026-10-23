@@ -87,5 +87,10 @@ export const antdThemeConfig: ThemeConfig = {
       primaryColor: themeTokens.colors.primaryText, // black text on primary button
       primaryShadow: 'none',
     },
+    Notification: {
+      colorBgElevated: '#14100E',
+      colorText: '#FFFFFF',
+      colorTextHeading: '#FFFFFF',
+    },
   },
 };
