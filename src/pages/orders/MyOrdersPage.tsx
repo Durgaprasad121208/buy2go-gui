@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Tag, Spin, Input } from 'antd';
+import { Spin, Input } from 'antd';
 import {
   SearchOutlined,
   DownloadOutlined,
@@ -24,15 +24,6 @@ import { richNotify } from '../../utils/notify';
 import styles from './MyOrdersPage.module.css';
 
 type FilterTab = 'ALL' | 'ACTIVE' | 'DELIVERED' | 'CANCELLED';
-
-const STATUS_COLOR_MAP: Record<string, { bg: string; text: string; border: string }> = {
-  New: { bg: 'rgba(0, 209, 255, 0.12)', text: '#00D1FF', border: 'rgba(0, 209, 255, 0.3)' },
-  Confirmed: { bg: 'rgba(56, 189, 248, 0.12)', text: '#38BDF8', border: 'rgba(56, 189, 248, 0.3)' },
-  Printing: { bg: 'rgba(168, 85, 247, 0.15)', text: '#C084FC', border: 'rgba(168, 85, 247, 0.35)' },
-  Shipped: { bg: 'rgba(255, 94, 0, 0.15)', text: '#FF5E00', border: 'rgba(255, 94, 0, 0.4)' },
-  Delivered: { bg: 'rgba(34, 197, 94, 0.15)', text: '#4ADE80', border: 'rgba(34, 197, 94, 0.35)' },
-  Cancelled: { bg: 'rgba(239, 68, 68, 0.15)', text: '#F87171', border: 'rgba(239, 68, 68, 0.35)' },
-};
 
 export const MyOrdersPage: React.FC = () => {
   const navigate = useNavigate();
@@ -332,12 +323,6 @@ export const MyOrdersPage: React.FC = () => {
                   })
                 : 'Recently Placed';
 
-              const statusStyle = STATUS_COLOR_MAP[ord.status] || {
-                bg: 'rgba(255, 255, 255, 0.08)',
-                text: '#FFFFFF',
-                border: 'rgba(255, 255, 255, 0.2)',
-              };
-
               const hasCustomPhotos =
                 (ord.items || []).some((i) => i.photos && i.photos.length > 0) ||
                 Boolean(ord.photo) ||
@@ -347,8 +332,14 @@ export const MyOrdersPage: React.FC = () => {
 
               return (
                 <div key={ord.id} className={styles.orderCard}>
-                  {/* Card Header */}
-                  <div className={styles.cardHeader}>
+                  {/* Clickable Header - Collapsed by default */}
+                  <div
+                    className={`${styles.cardHeader} ${isExpanded ? styles.cardHeaderOpen : ''}`}
+                    onClick={() => toggleExpand(ord.id)}
+                    role="button"
+                    tabIndex={0}
+                    aria-expanded={isExpanded}
+                  >
                     <div className={styles.cardHeaderLeft}>
                       <span className={styles.orderNumBadge}>{displayOrderNumber}</span>
                       <button
@@ -366,21 +357,6 @@ export const MyOrdersPage: React.FC = () => {
                         <CopyOutlined />
                       </button>
                       <span className={styles.orderDate}>{formattedDate}</span>
-                      <Tag
-                        style={{
-                          backgroundColor: statusStyle.bg,
-                          color: statusStyle.text,
-                          borderColor: statusStyle.border,
-                          fontWeight: 700,
-                          borderRadius: 3,
-                          textTransform: 'uppercase',
-                          fontSize: 11,
-                          padding: '1px 8px',
-                          margin: 0,
-                        }}
-                      >
-                        {ord.status}
-                      </Tag>
                     </div>
 
                     <div className={styles.cardHeaderRight}>
@@ -389,183 +365,176 @@ export const MyOrdersPage: React.FC = () => {
                         {(ord.itemCount || ord.items?.length || 1) > 1 ? 's' : ''}
                       </span>
                       <span className={styles.orderTotalAmount}>₹{ord.totalAmount}</span>
-                    </div>
-                  </div>
-
-                  {/* Shipment Quick Info Strip */}
-                  {ord.shipment && (ord.shipment.courier || ord.shipment.trackingNumber) && (
-                    <div className={styles.shipmentStrip}>
-                      <span className={styles.shipmentCourier}>
-                        <CarOutlined style={{ color: '#FF5E00' }} />
-                        <span>Courier: {ord.shipment.courier || 'Standard Dispatch'}</span>
+                      <span className={styles.chevronIcon}>
+                        {isExpanded ? <UpOutlined /> : <DownOutlined />}
                       </span>
-                      {ord.shipment.trackingNumber && (
-                        <span className={styles.shipmentTracking}>
-                          Tracking ID: <strong>{ord.shipment.trackingNumber}</strong>
-                        </span>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Card Body - Items */}
-                  <div className={styles.cardBody}>
-                    <div className={styles.itemsList}>
-                      {(ord.items || []).map((itm, itmIdx) => (
-                        <div key={itm.id || itmIdx} className={styles.itemRow}>
-                          <div className={styles.itemMain}>
-                            {itm.photo ? (
-                              <img
-                                src={itm.photo}
-                                alt={itm.title}
-                                className={styles.itemThumb}
-                              />
-                            ) : (
-                              <div className={styles.itemThumbPlaceholder}>
-                                <ShoppingOutlined />
-                              </div>
-                            )}
-                            <div className={styles.itemDetails}>
-                              <div className={styles.itemTitle}>{itm.title}</div>
-                              <div className={styles.itemVariant}>
-                                {itm.variant || 'Standard'} {itm.color ? `· ${itm.color}` : ''}
-                              </div>
-                              {itm.textToPrint && (
-                                <span className={styles.itemCustomText}>
-                                  Print: &ldquo;{itm.textToPrint}&rdquo;
-                                </span>
-                              )}
-                              {itm.printNotes && (
-                                <div style={{ fontSize: 11, color: '#8C867E', marginTop: 2 }}>
-                                  Note: {itm.printNotes}
-                                </div>
-                              )}
-                            </div>
-                          </div>
-
-                          <div className={styles.itemPriceQty}>
-                            ₹{itm.price} × {itm.quantity}
-                          </div>
-
-                          {/* Custom Photos attached to this item */}
-                          {itm.photos && itm.photos.length > 0 && (
-                            <div className={styles.photosStrip} style={{ width: '100%' }}>
-                              <span className={styles.photosLabel}>Your Custom Photos:</span>
-                              {itm.photos.map((photo, pIdx) => (
-                                <div key={pIdx} className={styles.photoThumbBox}>
-                                  <img
-                                    src={photo}
-                                    alt={`Custom upload ${pIdx + 1}`}
-                                    className={styles.photoThumbImg}
-                                  />
-                                  <button
-                                    type="button"
-                                    className={styles.photoDownloadBtn}
-                                    onClick={(e) =>
-                                      handleDownloadPhoto(e, photo, cleanNumber, pIdx)
-                                    }
-                                    title="Download Photo"
-                                  >
-                                    <DownloadOutlined />
-                                  </button>
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      ))}
                     </div>
                   </div>
 
-                  {/* Expandable Order Details Drawer */}
+                  {/* Collapsible Card Body - Closed by Default */}
                   {isExpanded && (
-                    <div className={styles.expandedDetails}>
-                      <div>
-                        <div className={styles.detailColTitle}>Shipping Details</div>
-                        <div className={styles.detailColContent}>
-                          <strong>{ord.customer?.name || ord.customerName}</strong>
-                          <br />
-                          {ord.customer?.phone}
-                          <br />
-                          {ord.customer?.address || ord.location}
-                        </div>
-                      </div>
-
-                      <div>
-                        <div className={styles.detailColTitle}>Delivery Status</div>
-                        <div className={styles.detailColContent}>
-                          Status: <strong>{ord.status}</strong>
-                          <br />
-                          Courier: {ord.shipment?.courier || 'Pending'}
-                          <br />
-                          Tracking: {ord.shipment?.trackingNumber || 'Pending assignment'}
-                          {ord.shipment?.notes && (
-                            <>
-                              <br />
-                              Notes: {ord.shipment.notes}
-                            </>
+                    <div className={styles.collapsibleBody}>
+                      {/* Shipment Quick Info Strip */}
+                      {ord.shipment && (ord.shipment.courier || ord.shipment.trackingNumber) && (
+                        <div className={styles.shipmentStrip}>
+                          <span className={styles.shipmentCourier}>
+                            <CarOutlined style={{ color: '#FF5E00' }} />
+                            <span>Courier: {ord.shipment.courier || 'Standard Dispatch'}</span>
+                          </span>
+                          {ord.shipment.trackingNumber && (
+                            <span className={styles.shipmentTracking}>
+                              Tracking ID: <strong>{ord.shipment.trackingNumber}</strong>
+                            </span>
                           )}
                         </div>
-                      </div>
+                      )}
 
-                      <div>
-                        <div className={styles.detailColTitle}>Payment & Timeline</div>
-                        <div className={styles.detailColContent}>
-                          Total: <strong>₹{ord.totalAmount}</strong> (Cash on Delivery / Prepaid)
-                          <br />
-                          Placed: {formattedDate}
-                          {ord.statusHistory && ord.statusHistory.length > 0 && (
-                            <div style={{ marginTop: 6, fontSize: 11, color: '#8C867E' }}>
-                              Latest update: {ord.statusHistory[ord.statusHistory.length - 1].remarks}
+                      {/* Card Body - Items */}
+                      <div className={styles.cardBody}>
+                        <div className={styles.itemsList}>
+                          {(ord.items || []).map((itm, itmIdx) => (
+                            <div key={itm.id || itmIdx} className={styles.itemRow}>
+                              <div className={styles.itemMain}>
+                                {itm.photo ? (
+                                  <img
+                                    src={itm.photo}
+                                    alt={itm.title}
+                                    className={styles.itemThumb}
+                                  />
+                                ) : (
+                                  <div className={styles.itemThumbPlaceholder}>
+                                    <ShoppingOutlined />
+                                  </div>
+                                )}
+                                <div className={styles.itemDetails}>
+                                  <div className={styles.itemTitle}>{itm.title}</div>
+                                  <div className={styles.itemVariant}>
+                                    {itm.variant || 'Standard'} {itm.color ? `· ${itm.color}` : ''}
+                                  </div>
+                                  {itm.textToPrint && (
+                                    <span className={styles.itemCustomText}>
+                                      Print: &ldquo;{itm.textToPrint}&rdquo;
+                                    </span>
+                                  )}
+                                  {itm.printNotes && (
+                                    <div style={{ fontSize: 11, color: '#8C867E', marginTop: 2 }}>
+                                      Note: {itm.printNotes}
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+
+                              <div className={styles.itemPriceQty}>
+                                ₹{itm.price} × {itm.quantity}
+                              </div>
+
+                              {/* Custom Photos attached to this item */}
+                              {itm.photos && itm.photos.length > 0 && (
+                                <div className={styles.photosStrip} style={{ width: '100%' }}>
+                                  <span className={styles.photosLabel}>Your Custom Photos:</span>
+                                  {itm.photos.map((photo, pIdx) => (
+                                    <div key={pIdx} className={styles.photoThumbBox}>
+                                      <img
+                                        src={photo}
+                                        alt={`Custom upload ${pIdx + 1}`}
+                                        className={styles.photoThumbImg}
+                                      />
+                                      <button
+                                        type="button"
+                                        className={styles.photoDownloadBtn}
+                                        onClick={(e) =>
+                                          handleDownloadPhoto(e, photo, cleanNumber, pIdx)
+                                        }
+                                        title="Download Photo"
+                                      >
+                                        <DownloadOutlined />
+                                      </button>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
                             </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Expandable Order Details - Address & Payment */}
+                      <div className={styles.expandedDetails}>
+                        <div>
+                          <div className={styles.detailColTitle}>Shipping Details</div>
+                          <div className={styles.detailColContent}>
+                            <strong>{ord.customer?.name || ord.customerName}</strong>
+                            <br />
+                            {ord.customer?.phone}
+                            <br />
+                            {ord.customer?.address || ord.location}
+                          </div>
+                        </div>
+
+                        <div>
+                          <div className={styles.detailColTitle}>Delivery Status</div>
+                          <div className={styles.detailColContent}>
+                            Status: <strong>{ord.status}</strong>
+                            <br />
+                            Courier: {ord.shipment?.courier || 'Pending'}
+                            <br />
+                            Tracking: {ord.shipment?.trackingNumber || 'Pending assignment'}
+                            {ord.shipment?.notes && (
+                              <>
+                                <br />
+                                Notes: {ord.shipment.notes}
+                              </>
+                            )}
+                          </div>
+                        </div>
+
+                        <div>
+                          <div className={styles.detailColTitle}>Payment & Timeline</div>
+                          <div className={styles.detailColContent}>
+                            Total: <strong>₹{ord.totalAmount}</strong> (Cash on Delivery / Prepaid)
+                            <br />
+                            Placed: {formattedDate}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Card Footer Actions */}
+                      <div className={styles.cardFooter}>
+                        <div className={styles.cardFooterLeft}>
+                          <button
+                            type="button"
+                            className={styles.detailsToggleBtn}
+                            onClick={() => toggleExpand(ord.id)}
+                          >
+                            <UpOutlined /> Collapse
+                          </button>
+                        </div>
+
+                        <div className={styles.cardFooterRight}>
+                          {hasCustomPhotos && (
+                            <button
+                              type="button"
+                              className={styles.actionDownloadBtn}
+                              onClick={(e) => handleDownloadAllOrderPhotos(e, ord)}
+                              title="Download high-resolution photo from MinIO"
+                            >
+                              <DownloadOutlined />
+                              <span>Download Photo</span>
+                            </button>
                           )}
+
+                          <button
+                            type="button"
+                            className={styles.actionTrackBtn}
+                            onClick={() => navigate(`/track/${cleanNumber}`)}
+                          >
+                            <CarOutlined />
+                            <span>Track Live</span>
+                          </button>
                         </div>
                       </div>
                     </div>
                   )}
-
-                  {/* Card Footer Actions */}
-                  <div className={styles.cardFooter}>
-                    <div className={styles.cardFooterLeft}>
-                      <button
-                        type="button"
-                        className={styles.detailsToggleBtn}
-                        onClick={() => toggleExpand(ord.id)}
-                      >
-                        {isExpanded ? (
-                          <>
-                            <UpOutlined /> Hide Details
-                          </>
-                        ) : (
-                          <>
-                            <DownOutlined /> View Details & Address
-                          </>
-                        )}
-                      </button>
-                    </div>
-
-                    <div className={styles.cardFooterRight}>
-                      {hasCustomPhotos && (
-                        <button
-                          type="button"
-                          className={styles.actionDownloadBtn}
-                          onClick={(e) => handleDownloadAllOrderPhotos(e, ord)}
-                          title="Download high-resolution photo from MinIO"
-                        >
-                          <DownloadOutlined />
-                          <span>Download Photo</span>
-                        </button>
-                      )}
-
-                      <button
-                        type="button"
-                        className={styles.actionTrackBtn}
-                        onClick={() => navigate(`/track/${cleanNumber}`)}
-                      >
-                        <CarOutlined />
-                        <span>Track Live</span>
-                      </button>
-                    </div>
-                  </div>
                 </div>
               );
             })}

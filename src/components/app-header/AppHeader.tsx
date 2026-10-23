@@ -1,16 +1,17 @@
 import React, { useState } from 'react';
 import { Layout, Drawer } from 'antd';
 import {
-  ShoppingOutlined,
-  LogoutOutlined,
-  UserOutlined,
-  DashboardOutlined,
-  MenuOutlined,
-  CloseOutlined,
-  SearchOutlined,
-  FileTextOutlined,
-  AppstoreOutlined,
-} from '@ant-design/icons';
+  ShoppingBag,
+  LogOut,
+  LogIn,
+  User as UserIcon,
+  LayoutDashboard,
+  Menu,
+  X,
+  Search,
+  ClipboardList,
+  LayoutGrid,
+} from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { DarkButton } from '../app-button/AppButton';
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
@@ -35,7 +36,7 @@ export interface AppHeaderProps {
 }
 
 /**
- * AppHeader - Main application header using Ant Design Layout.Header
+ * AppHeader - Main application header using Lucide React icons
  * Styled with single dark e-commerce theme and brand orange accents.
  * Fully responsive on Mobile, Tablet, and Desktop with mobile drawer navigation.
  */
@@ -154,7 +155,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
               }}
               className={styles.adminLink}
             >
-              <DashboardOutlined />
+              <LayoutDashboard size={14} />
               <span>Admin</span>
             </a>
           )}
@@ -165,7 +166,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
           <DarkButton
             onClick={onCartClick}
             className={styles.cartBtn}
-            icon={<ShoppingOutlined className={styles.cartIcon} />}
+            icon={<ShoppingBag size={16} className={styles.cartIcon} />}
           >
             <span className={styles.cartBtnText}>Cart</span>
             {typeof cartCount === 'number' && cartCount > 0 && (
@@ -184,7 +185,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
                   user?.userName || user?.email || (isAdmin ? 'Admin' : 'Customer')
                 }`}
               >
-                <LogoutOutlined />
+                <LogOut size={16} />
                 <span>Sign out</span>
               </button>
             ) : (
@@ -196,7 +197,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
                 }}
                 className={styles.authBtn}
               >
-                <UserOutlined />
+                <LogIn size={16} />
                 <span>Sign in</span>
               </a>
             )}
@@ -211,12 +212,12 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
             onClick={() => setMobileMenuOpen(true)}
             aria-label="Open mobile navigation menu"
           >
-            <MenuOutlined />
+            <Menu size={20} />
           </button>
         </div>
       </Header>
 
-      {/* Mobile Drawer Navigation */}
+      {/* Mobile Drawer Navigation with Lucide Icons */}
       <Drawer
         placement="right"
         onClose={() => setMobileMenuOpen(false)}
@@ -251,7 +252,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
               onClick={() => setMobileMenuOpen(false)}
               aria-label="Close menu"
             >
-              <CloseOutlined />
+              <X size={18} />
             </button>
           </div>
 
@@ -259,7 +260,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
           {isAuthenticated && (
             <div className={styles.drawerUserBox}>
               <div className={styles.drawerUserIcon}>
-                <UserOutlined />
+                <UserIcon size={18} />
               </div>
               <div>
                 <div className={styles.drawerUserName}>
@@ -281,7 +282,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
               }`}
               onClick={handleProductsClick}
             >
-              <AppstoreOutlined className={styles.drawerNavIcon} />
+              <LayoutGrid size={18} className={styles.drawerNavIcon} />
               <span>Products</span>
             </button>
 
@@ -292,7 +293,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
               }`}
               onClick={() => handleMobileNav('/track')}
             >
-              <SearchOutlined className={styles.drawerNavIcon} />
+              <Search size={18} className={styles.drawerNavIcon} />
               <span>Track Order</span>
             </button>
 
@@ -303,7 +304,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
               }`}
               onClick={() => handleMobileNav('/my-orders')}
             >
-              <FileTextOutlined className={styles.drawerNavIcon} />
+              <ClipboardList size={18} className={styles.drawerNavIcon} />
               <span>My Orders</span>
             </button>
 
@@ -313,7 +314,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
                 className={`${styles.drawerNavLink} ${styles.drawerAdminLink}`}
                 onClick={() => handleMobileNav('/admin/dashboard')}
               >
-                <DashboardOutlined className={styles.drawerNavIcon} />
+                <LayoutDashboard size={18} className={styles.drawerNavIcon} />
                 <span>Admin Dashboard</span>
               </button>
             )}
@@ -327,7 +328,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
                 else navigate('/cart');
               }}
             >
-              <ShoppingOutlined className={styles.drawerNavIcon} />
+              <ShoppingBag size={18} className={styles.drawerNavIcon} />
               <span>Your Cart</span>
               {typeof cartCount === 'number' && cartCount > 0 && (
                 <span className={styles.drawerCartBadge}>{cartCount}</span>
@@ -344,7 +345,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
               onClick={handleSignOut}
               className={styles.drawerSignOutBtn}
             >
-              <LogoutOutlined />
+              <LogOut size={16} />
               <span>Sign out</span>
             </button>
           ) : (
@@ -353,7 +354,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
               onClick={() => handleMobileNav('/login')}
               className={styles.drawerSignInBtn}
             >
-              <UserOutlined />
+              <LogIn size={16} />
               <span>Sign in</span>
             </button>
           )}

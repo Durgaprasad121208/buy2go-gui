@@ -247,16 +247,54 @@
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
 }
 
-/* Card Header */
+/* Card Header - Click to toggle collapse */
 .cardHeader {
   background-color: #17120F;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-  padding: 10px 16px;
+  padding: 12px 16px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 10px;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.2s ease;
+}
+
+.cardHeader:hover {
+  background-color: #1D1714;
+}
+
+.cardHeaderOpen {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.chevronIcon {
+  color: #8C867E;
+  font-size: 12px;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  margin-left: 4px;
+}
+
+.cardHeader:hover .chevronIcon {
+  color: #FF5E00;
+}
+
+.collapsibleBody {
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .cardHeaderLeft {

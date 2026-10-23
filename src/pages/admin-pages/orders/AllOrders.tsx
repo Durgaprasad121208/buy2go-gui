@@ -5,6 +5,8 @@ import {
     ReloadOutlined,
     DownloadOutlined,
     CloseCircleOutlined,
+    DownOutlined,
+    UpOutlined,
 } from '@ant-design/icons';
 import { Truck, Package } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -130,9 +132,6 @@ export const AllOrders: React.FC = () => {
             const rawList = Array.isArray(data) ? data : (data?.content || []);
             const mapped = rawList.map(mapToOrderRecord);
             setOrders(mapped);
-            if (mapped.length > 0 && !expandedOrderId) {
-                setExpandedOrderId(mapped[0].id);
-            }
         } catch (err: any) {
             console.error('Failed to load orders from server:', err);
             richNotify.error('Could not load orders from server.');
@@ -475,6 +474,9 @@ export const AllOrders: React.FC = () => {
                                             <Tag className={styles.statusTag}>
                                                 {ord.status.toUpperCase()}
                                             </Tag>
+                                            <span style={{ color: '#8C867E', fontSize: 12, marginLeft: 6, display: 'inline-flex', alignItems: 'center' }}>
+                                                {isExpanded ? <UpOutlined /> : <DownOutlined />}
+                                            </span>
                                         </div>
                                     </div>
 
