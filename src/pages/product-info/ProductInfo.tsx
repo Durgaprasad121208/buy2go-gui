@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
-import { Row, Col, Input, message, Spin } from 'antd';
+import { Row, Col, Input, Spin } from 'antd';
 import { useNavigate, useParams } from 'react-router-dom';
+import { richNotify } from '../../utils/notify';
 import {
     ArrowLeft,
     Minus,
@@ -294,12 +295,12 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({
         const incoming = Array.from(e.target.files);
 
         if (uploadedFiles.length + incoming.length > product.maxPhotosAllowed) {
-            message.warning(`Maximum ${product.maxPhotosAllowed} photos allowed.`);
+            richNotify.warning(`Maximum ${product.maxPhotosAllowed} photos allowed.`);
             return;
         }
 
         setUploadedFiles((prev) => [...prev, ...incoming]);
-        message.success(`${incoming.length} photo(s) attached successfully.`);
+        richNotify.success(`${incoming.length} photo(s) attached successfully.`);
     };
 
     const handleRemoveFile = (index: number) => {
@@ -310,7 +311,7 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({
         if (onAddToCart) {
             onAddToCart(orderPayload, uploadedFiles);
         } else {
-            message.success(
+            richNotify.success(
                 `Added ${quantity} x "${product.title}" (${selectedColor}) to cart.`
             );
         }

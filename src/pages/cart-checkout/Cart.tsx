@@ -11,8 +11,8 @@ import {
   Modal,
   Badge,
   Tag,
-  message,
 } from 'antd';
+import { richNotify } from '../../utils/notify';
 import {
   DeleteOutlined,
   MinusOutlined,
@@ -115,7 +115,7 @@ export const Cart: React.FC = () => {
   const handleRemoveItem = (itemId: string) => {
     const target = cartItems.find((i) => i.id === itemId);
     setCartItems((prev) => prev.filter((item) => item.id !== itemId));
-    message.success(`Removed "${target?.title || 'Item'}" from cart.`);
+    richNotify.success(`Removed "${target?.title || 'Item'}" from cart.`);
   };
 
   // Add photos via Ant Design Upload
@@ -129,7 +129,7 @@ export const Cart: React.FC = () => {
         return item;
       })
     );
-    message.success(`Attached "${fileName}" to ${cartItems.find(i => i.id === itemId)?.title}`);
+    richNotify.success(`Attached "${fileName}" to ${cartItems.find(i => i.id === itemId)?.title}`);
     return false; // Prevent default HTTP upload POST
   };
 
@@ -150,7 +150,7 @@ export const Cart: React.FC = () => {
   // Order Submission via Ant Design Form onFinish
   const handlePlaceOrder = async (values: DeliveryFormValues) => {
     if (cartItems.length === 0) {
-      message.warning('Your cart is empty. Please add items to checkout.');
+      richNotify.warning('Your cart is empty. Please add items to checkout.');
       return;
     }
 
@@ -177,9 +177,9 @@ export const Cart: React.FC = () => {
 
       setPlacedOrder(orderResult);
       setIsSuccessModalOpen(true);
-      message.success('Order placed successfully! Pay on delivery.');
+      richNotify.success('Order placed successfully! Pay on delivery.');
     } catch {
-      message.error('Failed to submit order. Please check details and try again.');
+      richNotify.error('Failed to submit order. Please check details and try again.');
     } finally {
       setSubmitting(false);
     }

@@ -8,8 +8,8 @@ import {
   Row,
   Col,
   Popconfirm,
-  message,
 } from 'antd';
+import { richNotify } from '../../../utils/notify';
 import {
   PlusOutlined,
   EditOutlined,
@@ -175,14 +175,14 @@ export const AddProductDrawer: React.FC<AddProductDrawerProps> = ({
         onSuccess(savedProduct);
       }
 
-      message.success(
+      richNotify.success(
         editingProduct
           ? `Product "${savedProduct.title}" updated successfully.`
           : `Product "${savedProduct.title}" published to shop!`
       );
       onClose();
     } catch {
-      message.error('Failed to save product. Please check form inputs.');
+      richNotify.error('Failed to save product. Please check form inputs.');
     } finally {
       setSubmitting(false);
     }
@@ -319,7 +319,7 @@ export const AddProductDrawer: React.FC<AddProductDrawerProps> = ({
                   maxCount={1}
                   beforeUpload={(file) => {
                     setUploadedFileName(file.name);
-                    message.success(`Selected file: ${file.name}`);
+                    richNotify.success(`Selected file: ${file.name}`);
                     return false; // Prevent automated HTTP post
                   }}
                 >
@@ -422,7 +422,7 @@ export const AddProducts: React.FC = () => {
       prev.map((p) => {
         if (p.id === id) {
           const updated = { ...p, isLive: !p.isLive };
-          message.info(
+          richNotify.info(
             `Product "${p.title}" is now ${updated.isLive ? 'LIVE' : 'HIDDEN'}.`
           );
           return updated;
@@ -435,7 +435,7 @@ export const AddProducts: React.FC = () => {
   const handleDeleteProduct = (id: string) => {
     const target = products.find((p) => p.id === id);
     setProducts((prev) => prev.filter((p) => p.id !== id));
-    message.success(`Product "${target?.title || 'Item'}" deleted.`);
+    richNotify.success(`Product "${target?.title || 'Item'}" deleted.`);
   };
 
   return (

@@ -1,9 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Input, message } from 'antd';
+import { Input } from 'antd';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import Cookies from 'js-cookie';
 import { SubmitButton } from '../../components/app-button/AppButton';
 import { CreateAccountPayload, SignInPayload } from '../../api/api';
 import { authService } from '../../services/authService';
+import { useAppDispatch } from '../../redux/hooks';
+import { setUser } from '../../redux/slices/authSlice';
+import type { Buy2GoUser } from '../../interfaces';
+import { richNotify } from '../../utils/notify';
 import styles from './AuthPage.module.css';
 
 export interface AuthPageProps {
@@ -12,6 +17,7 @@ export interface AuthPageProps {
 
 export const AuthPage: React.FC<AuthPageProps> = ({ defaultMode = 'signin' }) => {
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
   const [searchParams, setSearchParams] = useSearchParams();
 
   // Mode can be toggled via button or via URL query param (?mode=signup)
@@ -49,12 +55,12 @@ export const AuthPage: React.FC<AuthPageProps> = ({ defaultMode = 'signin' }) =>
     setSearchParams(newMode === 'signup' ? { mode: 'signup' } : {});
   };
 
-  // Sign In submit handler
+  // Sign In submit handler using authService
   const handleSignInSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!signInData.email.trim() || !signInData.password.trim()) {
-      message.error('Please enter both email and password.');
+      richNotify.error('Please enter both email and password.');
       return;
     }
 
@@ -64,61 +70,126 @@ export const AuthPage: React.FC<AuthPageProps> = ({ defaultMode = 'signin' }) =>
         email: signInData.email,
         password: signInData.password,
       });
-      message.success(response?.message || 'Signed in successfully! Redirecting to orders...');
+
+      const data = response?.data || response;
+      const token = data?.token || data?.accessToken;
+
+      // Persist accessToken in cookies
+      if (token) {
+        Cookies.set('accessToken', token, { expires: 7 });
+      }
+
+      // Fetch or assemble user profile
+      let user: Buy2GoUser | null = data?.user || (data?.email ? data : null);
+      if (!user && token) {
+        try {
+          const profileRes = await authService.getCurrentUser();
+          user = profileRes?.data || profileRes;
+        } catch (profileErr) {
+          console.warn('Could not retrieve current user profile:', profileErr);
+        }
+      }
+
+      if (!user) {
+        user = {
+          id: data?.id || data?.userId || 'user-' + Date.now(),
+          firstName: data?.firstName || '',
+          lastName: data?.lastName || '',
+          email: data?.email || signInData.email,
+          role: data?.role || data?.roleName || 'ADMIN',
+          roleName: data?.role || data?.roleName || 'ADMIN',
+          userName: data?.userName || signInData.email,
+        };
+      }
+
+      // Persist user identification cookies
+      Cookies.set('userId', String(user.id), { expires: 7 });
+      Cookies.set('userName', user.userName || user.email || '', { expires: 7 });
+      Cookies.set('role', user.role || user.roleName || 'ADMIN', { expires: 7 });
+      Cookies.set('loginTimestamp', Date.now().toString(), { expires: 7 });
+
+      // Synchronize Redux Auth State
+      dispatch(setUser(user));
+
+      richNotify.success(response?.message || 'Signed in successfully! Redirecting...');
       setTimeout(() => {
         navigate('/admin/orders');
       }, 600);
     } catch (err: any) {
       const errMsg = err?.response?.data?.message || err?.message || '';
       if (err?.code === 'ERR_NETWORK' || !err?.response) {
-        message.success('Static demo mode: Signed in successfully!');
+        // Fallback for offline demo development
+        const demoUser: Buy2GoUser = {
+          id: 'demo-admin-1',
+          firstName: 'Admin',
+          lastName: 'User',
+          email: signInData.email,
+          role: 'ADMIN',
+          roleName: 'ADMIN',
+          userName: signInData.email.split('@')[0],
+        };
+        Cookies.set('accessToken', 'mock-demo-token', { expires: 7 });
+        Cookies.set('userId', demoUser.id, { expires: 7 });
+        Cookies.set('userName', demoUser.userName || '', { expires: 7 });
+        Cookies.set('role', 'ADMIN', { expires: 7 });
+        Cookies.set('loginTimestamp', Date.now().toString(), { expires: 7 });
+        dispatch(setUser(demoUser));
+
+        richNotify.success('Static demo mode: Signed in successfully!');
         setTimeout(() => {
           navigate('/admin/orders');
         }, 600);
       } else {
-        message.error(errMsg || 'An error occurred while signing in.');
+        richNotify.error(errMsg || 'An error occurred while signing in.');
       }
     } finally {
       setLoading(false);
     }
   };
 
-  // Create Account submit handler
+  // Create Account submit handler using authService
   const handleCreateAccountSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     const { firstName, lastName, email, phone, password } = createAccountData;
 
     if (!firstName.trim() || !lastName.trim() || !email.trim() || !phone.trim() || !password.trim()) {
-      message.error('Please fill in all fields.');
+      richNotify.error('Please fill in all fields.');
       return;
     }
 
     // Basic email format check
     if (!/\S+@\S+\.\S+/.test(email)) {
-      message.error('Please provide a valid email address.');
+      richNotify.error('Please provide a valid email address.');
       return;
     }
 
     if (password.length < 6) {
-      message.error('Password must be at least 6 characters.');
+      richNotify.error('Password must be at least 6 characters.');
       return;
     }
 
     setLoading(true);
     try {
       const response = await authService.register(createAccountData);
-      message.success(response?.message || 'Account created successfully! You can now sign in.');
+      richNotify.success(response?.message || 'Account created successfully! You can now sign in.');
       setSignInData((prev) => ({ ...prev, email }));
+      setCreateAccountData({
+        firstName: '',
+        lastName: '',
+        email: '',
+        phone: '',
+        password: '',
+      });
       handleModeSwitch('signin');
     } catch (err: any) {
       const errMsg = err?.response?.data?.message || err?.message || '';
       if (err?.code === 'ERR_NETWORK' || !err?.response) {
-        message.success('Account created successfully! (Static Mode). Switching to sign in...');
+        richNotify.success('Account created successfully! (Static Mode). Switching to sign in...');
         setSignInData((prev) => ({ ...prev, email }));
         handleModeSwitch('signin');
       } else {
-        message.error(errMsg || 'An error occurred while creating your account.');
+        richNotify.error(errMsg || 'An error occurred while creating your account.');
       }
     } finally {
       setLoading(false);
