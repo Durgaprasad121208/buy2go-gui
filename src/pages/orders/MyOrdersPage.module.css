@@ -782,3 +782,16 @@
     padding: 10px 12px;
   }
 }
+
+.spinIcon {
+  animation: spinAnim 1s linear infinite;
+}
+
+@keyframes spinAnim {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

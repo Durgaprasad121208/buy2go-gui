@@ -1,20 +1,15 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Spin, Input } from 'antd';
 import {
-  SearchOutlined,
-  DownloadOutlined,
-  ShoppingOutlined,
-  CarOutlined,
-  CheckCircleOutlined,
-  ClockCircleOutlined,
-  SyncOutlined,
-  CloseCircleOutlined,
-  DownOutlined,
-  UpOutlined,
-  CopyOutlined,
-  EyeOutlined,
-  ReloadOutlined,
-} from '@ant-design/icons';
+  Search,
+  Download,
+  ShoppingBag,
+  Truck,
+  ChevronDown,
+  ChevronUp,
+  Copy,
+  RefreshCw,
+} from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { orderService } from '../../services/orderService';
 import { Buy2GoOrder } from '../../interfaces';
@@ -87,7 +82,6 @@ export const MyOrdersPage: React.FC = () => {
       richNotify.info('Downloading photo from MinIO...');
       const cleanNum = orderNumber.replace(/^#/, '');
       const suffix = typeof index === 'number' ? `_photo_${index + 1}` : '_photo';
-      // User requested: pass the order id so GET /api/orders/download-photo?id=... streams from MinIO
       await orderService.downloadPhoto({
         id: cleanNum,
         url: photoUrl,
@@ -165,7 +159,7 @@ export const MyOrdersPage: React.FC = () => {
       <div className={styles.pageContainer}>
         <div className={styles.contentWrapper}>
           <div className={styles.authBanner}>
-            <ShoppingOutlined style={{ fontSize: 44, color: '#FF5E00', marginBottom: 16 }} />
+            <ShoppingBag size={40} color="#FF5E00" style={{ marginBottom: 12 }} />
             <h2 className={styles.authBannerTitle}>Sign in to view your orders</h2>
             <p className={styles.authBannerSub}>
               Track live shipment progress, view purchase receipts, and download custom printed photos.
@@ -197,7 +191,6 @@ export const MyOrdersPage: React.FC = () => {
       <div className={styles.contentWrapper}>
         {/* Header */}
         <div className={styles.headerSection}>
-          <span className={styles.tag}>CUSTOMER PORTAL</span>
           <div className={styles.headerTopRow}>
             <div>
               <h1 className={styles.title}>MY ORDERS</h1>
@@ -211,7 +204,7 @@ export const MyOrdersPage: React.FC = () => {
                 className={styles.trackQuickBtn}
                 onClick={() => navigate('/track')}
               >
-                <SearchOutlined />
+                <Search size={14} />
                 <span>Track Order</span>
               </button>
               <button
@@ -220,14 +213,14 @@ export const MyOrdersPage: React.FC = () => {
                 onClick={fetchOrders}
                 title="Refresh orders list"
               >
-                <ReloadOutlined spin={loading} />
+                <RefreshCw size={13} className={loading ? styles.spinIcon : ''} />
                 <span>Refresh</span>
               </button>
             </div>
           </div>
         </div>
 
-        {/* Filter and Search Bar */}
+        {/* Compact Filter and Search Bar */}
         <div className={styles.controlsBar}>
           <div className={styles.tabsList}>
             <button
@@ -267,7 +260,7 @@ export const MyOrdersPage: React.FC = () => {
           <div className={styles.searchInputWrapper}>
             <Input
               size="small"
-              prefix={<SearchOutlined style={{ color: '#8C867E', fontSize: 11 }} />}
+              prefix={<Search size={11} style={{ color: '#8C867E' }} />}
               placeholder="Search orders..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -279,16 +272,16 @@ export const MyOrdersPage: React.FC = () => {
 
         {/* Loading Spinner */}
         {loading ? (
-          <div style={{ textAlign: 'center', padding: '64px 0' }}>
+          <div style={{ textAlign: 'center', padding: '48px 0' }}>
             <Spin size="large" />
-            <p style={{ marginTop: 16, color: '#8C867E', fontSize: 14 }}>
+            <p style={{ marginTop: 14, color: '#8C867E', fontSize: 13 }}>
               Loading your orders...
             </p>
           </div>
         ) : filteredOrders.length === 0 ? (
           /* Empty State */
           <div className={styles.emptyState}>
-            <ShoppingOutlined className={styles.emptyIcon} />
+            <ShoppingBag size={40} className={styles.emptyIcon} />
             <h3 className={styles.emptyTitle}>
               {searchQuery ? 'No matching orders found' : 'No orders in this tab'}
             </h3>
@@ -352,9 +345,11 @@ export const MyOrdersPage: React.FC = () => {
                           color: '#8C867E',
                           cursor: 'pointer',
                           padding: 2,
+                          display: 'inline-flex',
+                          alignItems: 'center',
                         }}
                       >
-                        <CopyOutlined />
+                        <Copy size={13} />
                       </button>
                       <span className={styles.orderDate}>{formattedDate}</span>
                     </div>
@@ -366,7 +361,7 @@ export const MyOrdersPage: React.FC = () => {
                       </span>
                       <span className={styles.orderTotalAmount}>₹{ord.totalAmount}</span>
                       <span className={styles.chevronIcon}>
-                        {isExpanded ? <UpOutlined /> : <DownOutlined />}
+                        {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
                       </span>
                     </div>
                   </div>
@@ -378,7 +373,7 @@ export const MyOrdersPage: React.FC = () => {
                       {ord.shipment && (ord.shipment.courier || ord.shipment.trackingNumber) && (
                         <div className={styles.shipmentStrip}>
                           <span className={styles.shipmentCourier}>
-                            <CarOutlined style={{ color: '#FF5E00' }} />
+                            <Truck size={14} style={{ color: '#FF5E00' }} />
                             <span>Courier: {ord.shipment.courier || 'Standard Dispatch'}</span>
                           </span>
                           {ord.shipment.trackingNumber && (
@@ -403,7 +398,7 @@ export const MyOrdersPage: React.FC = () => {
                                   />
                                 ) : (
                                   <div className={styles.itemThumbPlaceholder}>
-                                    <ShoppingOutlined />
+                                    <ShoppingBag size={20} />
                                   </div>
                                 )}
                                 <div className={styles.itemDetails}>
@@ -447,7 +442,7 @@ export const MyOrdersPage: React.FC = () => {
                                         }
                                         title="Download Photo"
                                       >
-                                        <DownloadOutlined />
+                                        <Download size={13} />
                                       </button>
                                     </div>
                                   ))}
@@ -506,7 +501,7 @@ export const MyOrdersPage: React.FC = () => {
                             className={styles.detailsToggleBtn}
                             onClick={() => toggleExpand(ord.id)}
                           >
-                            <UpOutlined /> Collapse
+                            <ChevronUp size={13} /> Collapse
                           </button>
                         </div>
 
@@ -518,7 +513,7 @@ export const MyOrdersPage: React.FC = () => {
                               onClick={(e) => handleDownloadAllOrderPhotos(e, ord)}
                               title="Download high-resolution photo from MinIO"
                             >
-                              <DownloadOutlined />
+                              <Download size={14} />
                               <span>Download Photo</span>
                             </button>
                           )}
@@ -528,7 +523,7 @@ export const MyOrdersPage: React.FC = () => {
                             className={styles.actionTrackBtn}
                             onClick={() => navigate(`/track/${cleanNumber}`)}
                           >
-                            <CarOutlined />
+                            <Truck size={14} />
                             <span>Track Live</span>
                           </button>
                         </div>

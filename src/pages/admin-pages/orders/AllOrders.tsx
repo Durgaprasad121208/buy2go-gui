@@ -5,10 +5,8 @@ import {
     ReloadOutlined,
     DownloadOutlined,
     CloseCircleOutlined,
-    DownOutlined,
-    UpOutlined,
 } from '@ant-design/icons';
-import { Truck, Package } from 'lucide-react';
+import { Truck, Package, ChevronDown, ChevronUp } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { richNotify } from '../../../utils/notify';
 import { SubmitButton } from '../../../components/app-button/AppButton';
@@ -474,8 +472,8 @@ export const AllOrders: React.FC = () => {
                                             <Tag className={styles.statusTag}>
                                                 {ord.status.toUpperCase()}
                                             </Tag>
-                                            <span style={{ color: '#8C867E', fontSize: 12, marginLeft: 6, display: 'inline-flex', alignItems: 'center' }}>
-                                                {isExpanded ? <UpOutlined /> : <DownOutlined />}
+                                            <span style={{ color: '#8C867E', marginLeft: 6, display: 'inline-flex', alignItems: 'center' }}>
+                                                {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
                                             </span>
                                         </div>
                                     </div>
