@@ -287,8 +287,29 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({
         setUploadedFiles((prev) => prev.filter((_, i) => i !== index));
     };
 
+    const saveItemToLocalStorage = () => {
+        if (!product) return;
+        const cartItem = {
+            id: `item-${Date.now()}`,
+            productId: product.id,
+            title: product.title,
+            variant: selectedColor,
+            unitPrice: product.price,
+            quantity,
+            image: product.image,
+            photos: uploadedFiles.map((f) => f.name),
+        };
+        try {
+            const existing = JSON.parse(localStorage.getItem('buy2go_cart') || '[]');
+            localStorage.setItem('buy2go_cart', JSON.stringify([...existing, cartItem]));
+        } catch {
+            // ignore
+        }
+    };
+
     const handleAddToCart = () => {
         if (!product || !orderPayload) return;
+        saveItemToLocalStorage();
         if (onAddToCart) {
             onAddToCart(orderPayload, uploadedFiles);
         } else {
@@ -300,6 +321,7 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({
 
     const handleBuyNow = () => {
         if (!product || !orderPayload) return;
+        saveItemToLocalStorage();
         if (onBuyNow) {
             onBuyNow(orderPayload, uploadedFiles);
         } else {

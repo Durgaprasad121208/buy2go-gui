@@ -18,11 +18,8 @@ import {
   EyeInvisibleOutlined,
   DeleteOutlined,
   UploadOutlined,
-  LogoutOutlined,
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
-import { useAppDispatch } from '../../../redux/hooks';
-import { logout } from '../../../redux/slices/authSlice';
 import { productService } from '../../../services/productService';
 import { ProductPayload } from '../../../interfaces';
 import {
@@ -406,7 +403,6 @@ export const AddProductDrawer: React.FC<AddProductDrawerProps> = ({
 
 export const AddProducts: React.FC = () => {
   const navigate = useNavigate();
-  const dispatch = useAppDispatch();
   const [products, setProducts] = useState<AdminProductItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [isDrawerOpen, setIsDrawerOpen] = useState<boolean>(false);
@@ -443,12 +439,6 @@ export const AddProducts: React.FC = () => {
     fetchAdminProducts();
   }, []);
 
-  const handleSignOut = () => {
-    dispatch(logout());
-    richNotify.success('Signed out successfully.');
-    navigate('/login');
-  };
-
   const handleOpenAdd = () => {
     setEditingProduct(null);
     setIsDrawerOpen(true);
@@ -479,11 +469,6 @@ export const AddProducts: React.FC = () => {
     if (!target) return;
     const newStatus = !target.isLive;
 
-    // Optimistic update
-    setProducts((prev) =>
-      prev.map((p) => (p.id === id ? { ...p, isLive: newStatus } : p))
-    );
-
     try {
       await productService.updateProduct(id, {
         title: target.title,
@@ -492,27 +477,39 @@ export const AddProducts: React.FC = () => {
         isLive: newStatus,
         image: target.image,
       });
+      setProducts((prev) =>
+        prev.map((p) => (p.id === id ? { ...p, isLive: newStatus } : p))
+      );
       richNotify.info(
         `Product "${target.title}" is now ${newStatus ? 'LIVE' : 'HIDDEN'}.`
       );
-    } catch (err) {
-      console.warn('Backend toggle live failed, kept local state:', err);
-      richNotify.info(
-        `Product "${target.title}" is now ${newStatus ? 'LIVE' : 'HIDDEN'}.`
-      );
+    } catch (err: any) {
+      console.error('Backend toggle live failed:', err);
+      const errorMsg =
+        err?.data?.message ||
+        err?.message ||
+        'Failed to update product status on server.';
+      richNotify.error(`Status update failed: ${errorMsg}`);
     }
   };
 
   const handleDeleteProduct = async (id: string) => {
     const target = products.find((p) => p.id === id);
-    setProducts((prev) => prev.filter((p) => p.id !== id));
-
     try {
       await productService.deleteProduct(id);
+      setProducts((prev) => prev.filter((p) => p.id !== id));
       richNotify.success(`Product "${target?.title || 'Item'}" deleted.`);
-    } catch (err) {
-      console.warn('Backend delete product failed, removed locally:', err);
-      richNotify.success(`Product "${target?.title || 'Item'}" deleted.`);
+    } catch (err: any) {
+      console.error('Backend delete product failed:', err);
+      const errorMsg =
+        err?.data?.message ||
+        err?.message ||
+        (err?.status === 404
+          ? 'Product not found on server (404).'
+          : 'Failed to delete product from server.');
+      richNotify.error(`Delete failed: ${errorMsg}`);
+      // Refresh live catalog so UI reflects actual state from backend
+      fetchAdminProducts();
     }
   };
 
@@ -525,14 +522,6 @@ export const AddProducts: React.FC = () => {
             <span className={styles.ownerTag}>OWNER DASHBOARD</span>
             <h1 className={styles.pageTitle}>PRODUCTS</h1>
           </div>
-          <button
-            type="button"
-            className={styles.signOutBtn}
-            onClick={handleSignOut}
-          >
-            <LogoutOutlined />
-            <span>Sign out</span>
-          </button>
         </div>
 
         {/* Tabs Navigation (ORDERS / PRODUCTS) */}

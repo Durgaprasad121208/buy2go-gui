@@ -107,7 +107,6 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
             }}
             className={styles.adminLink}
           >
-            <DashboardOutlined />
             <span>Admin</span>
           </a>
         )}

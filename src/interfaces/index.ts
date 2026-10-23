@@ -71,3 +71,98 @@ export interface ProductPayload {
   photoUrl?: string;
   [key: string]: any;
 }
+
+/* ==========================================================================
+   Order Domain Models (from Swagger / OpenAPI Buy2Go API)
+   ========================================================================== */
+
+export type OrderStatus =
+  | 'New'
+  | 'Confirmed'
+  | 'Printing'
+  | 'Shipped'
+  | 'Delivered'
+  | 'Cancelled';
+
+export interface CustomerDetail {
+  name?: string;
+  phone?: string;
+  email?: string;
+  address?: string;
+}
+
+export interface OrderItemDetail {
+  id?: string;
+  title: string;
+  variant?: string;
+  color?: string;
+  textToPrint?: string;
+  quantity: number;
+  price: number;
+  photo?: string;
+  printNotes?: string;
+  photos?: string[];
+}
+
+export interface ShipmentDetail {
+  status?: OrderStatus;
+  courier?: string;
+  trackingNumber?: string;
+  notes?: string;
+}
+
+export interface OrderStatusHistory {
+  fromStatus?: OrderStatus;
+  toStatus: OrderStatus;
+  changedBy?: string;
+  changedAt?: string;
+  remarks?: string;
+}
+
+export interface Buy2GoOrder {
+  id: string;
+  orderNumber: string;
+  customerName?: string;
+  location?: string;
+  itemCount?: number;
+  totalAmount: number;
+  status: OrderStatus;
+  customer?: CustomerDetail;
+  items?: OrderItemDetail[];
+  photo?: string;
+  shipment?: ShipmentDetail;
+  statusHistory?: OrderStatusHistory[];
+  createdAt?: string;
+  updatedAt?: string;
+  additionalPhotos?: string[];
+}
+
+export interface CreateOrderRequest {
+  customer?: CustomerDetail;
+  items?: OrderItemDetail[];
+  photo?: string;
+  totalAmount?: number;
+  location?: string;
+  additionalPhotos?: string[];
+}
+
+export interface OrderStatusUpdatePayload {
+  status: OrderStatus;
+  remarks?: string;
+}
+
+export interface ShipmentUpdatePayload {
+  status?: OrderStatus;
+  courier?: string;
+  trackingNumber?: string;
+  notes?: string;
+}
+
+export interface ItemCustomizationPayload {
+  variant?: string;
+  color?: string;
+  textToPrint?: string;
+  photo?: string;
+  printNotes?: string;
+  photos?: string[];
+}

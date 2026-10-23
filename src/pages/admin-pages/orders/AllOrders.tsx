@@ -1,50 +1,24 @@
-import React, { useState } from 'react';
-import { Input, Row, Col, Tag, Button, Empty } from 'antd';
+import React, { useState, useEffect } from 'react';
+import { Input, Row, Col, Tag, Button, Empty, Spin, Popconfirm } from 'antd';
 import {
     SearchOutlined,
     ReloadOutlined,
-    LogoutOutlined,
+    DownloadOutlined,
+    CloseCircleOutlined,
 } from '@ant-design/icons';
 import { Truck, Package } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useAppDispatch } from '../../../redux/hooks';
-import { logout } from '../../../redux/slices/authSlice';
 import { richNotify } from '../../../utils/notify';
 import { SubmitButton } from '../../../components/app-button/AppButton';
-import keychainImg from '../../../assests/1cliq-keychain.jpg';
-import mugImg from '../../../assests/1cliq-mug.jpg';
-import capImg from '../../../assests/1cliq-cap.jpg';
+import { orderService } from '../../../services/orderService';
+import {
+    OrderStatus,
+    CustomerDetail,
+    OrderItemDetail,
+    ShipmentDetail,
+    Buy2GoOrder,
+} from '../../../interfaces';
 import styles from './AllOrders.module.css';
-
-export type OrderStatus =
-    | 'New'
-    | 'Confirmed'
-    | 'Printing'
-    | 'Shipped'
-    | 'Delivered'
-    | 'Cancelled';
-
-export interface CustomerDetail {
-    name: string;
-    phone: string;
-    address: string;
-}
-
-export interface OrderItemDetail {
-    id: string;
-    title: string;
-    variant: string;
-    quantity: number;
-    price: number;
-    photos: string[];
-}
-
-export interface ShipmentDetail {
-    status: OrderStatus;
-    courier: string;
-    trackingNumber: string;
-    notes: string;
-}
 
 export interface OrderRecord {
     id: string;
@@ -60,39 +34,64 @@ export interface OrderRecord {
     shipment: ShipmentDetail;
 }
 
-const INITIAL_ORDERS: OrderRecord[] = [
-    {
-        id: 'ord-1',
-        orderNumber: '#9a4c3517',
-        customerName: 'Nicy',
-        timestamp: '20/9/2026, 9:31:07 pm',
-        location: 'Nellore 522002',
-        itemCount: 1,
-        totalAmount: 99,
-        status: 'New',
+export const mapToOrderRecord = (dto: any): OrderRecord => {
+    const customer = dto.customer || {};
+    const shipment = dto.shipment || {};
+    const items: OrderItemDetail[] = Array.isArray(dto.items)
+        ? dto.items.map((it: any, idx: number) => ({
+              id: String(it.id || `item-${idx}`),
+              title: it.title || it.name || 'Custom Product',
+              variant: it.variant || it.color || 'Standard',
+              quantity: Number(it.quantity || 1),
+              price: Number(it.price || 0),
+              photos: Array.isArray(it.photos) && it.photos.length > 0
+                  ? it.photos
+                  : it.photo ? [it.photo] : [],
+          }))
+        : [];
+
+    const formattedDate = dto.createdAt
+        ? new Date(dto.createdAt).toLocaleString('en-IN', {
+              day: 'numeric',
+              month: 'numeric',
+              year: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+              hour12: true,
+          })
+        : dto.timestamp || 'Recent';
+
+    const orderNumberStr = dto.orderNumber
+        ? dto.orderNumber.startsWith('#') ? dto.orderNumber : `#${dto.orderNumber}`
+        : `#${String(dto.id).slice(-8)}`;
+
+    return {
+        id: String(dto.id),
+        orderNumber: orderNumberStr,
+        customerName: dto.customerName || customer.name || 'Customer',
+        timestamp: formattedDate,
+        location: dto.location || customer.address || 'India',
+        itemCount: Number(
+            dto.itemCount ||
+            items.reduce((sum, it) => sum + (it.quantity || 1), 0) ||
+            items.length
+        ),
+        totalAmount: Number(dto.totalAmount || 0),
+        status: (dto.status || 'New') as OrderStatus,
         customer: {
-            name: 'Nicy',
-            phone: '9490022488',
-            address: 'Police colony, Nellore 522002',
+            name: customer.name || dto.customerName || 'Customer',
+            phone: customer.phone || 'N/A',
+            address: customer.address || dto.location || 'N/A',
         },
-        items: [
-            {
-                id: 'item-1',
-                title: 'Customised Key Chain',
-                variant: 'Standard / Clear',
-                quantity: 1,
-                price: 99,
-                photos: [keychainImg, mugImg, capImg],
-            },
-        ],
+        items,
         shipment: {
-            status: 'New',
-            courier: 'Asd',
-            trackingNumber: '',
-            notes: '',
+            status: (shipment.status || dto.status || 'New') as OrderStatus,
+            courier: shipment.courier || '',
+            trackingNumber: shipment.trackingNumber || '',
+            notes: shipment.notes || '',
         },
-    },
-];
+    };
+};
 
 const STATUS_PILL_OPTIONS: OrderStatus[] = [
     'New',
@@ -105,20 +104,47 @@ const STATUS_PILL_OPTIONS: OrderStatus[] = [
 
 export const AllOrders: React.FC = () => {
     const navigate = useNavigate();
-    const dispatch = useAppDispatch();
-    const [orders, setOrders] = useState<OrderRecord[]>(INITIAL_ORDERS);
+    const [orders, setOrders] = useState<OrderRecord[]>([]);
+    const [loading, setLoading] = useState<boolean>(true);
     const [activeFilter, setActiveFilter] = useState<string>('All');
     const [searchQuery, setSearchQuery] = useState<string>('');
+    const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
+    const [savedFeedback, setSavedFeedback] = useState<Record<string, boolean>>({});
 
-    const handleSignOut = () => {
-        dispatch(logout());
-        richNotify.success('Signed out successfully.');
-        navigate('/login');
+    const fetchOrders = async (statusFilter?: string, search?: string) => {
+        try {
+            setLoading(true);
+            const params: any = {
+                page: 0,
+                size: 50,
+            };
+            if (statusFilter && statusFilter !== 'All') {
+                params.status = statusFilter;
+            }
+            if (search && search.trim()) {
+                params.search = search.trim();
+            }
+
+            const res = await orderService.getAllOrders(params);
+            const data = (res as any)?.data || res;
+            const rawList = Array.isArray(data) ? data : (data?.content || []);
+            const mapped = rawList.map(mapToOrderRecord);
+            setOrders(mapped);
+            if (mapped.length > 0 && !expandedOrderId) {
+                setExpandedOrderId(mapped[0].id);
+            }
+        } catch (err: any) {
+            console.error('Failed to load orders from server:', err);
+            richNotify.error('Could not load orders from server.');
+            setOrders([]);
+        } finally {
+            setLoading(false);
+        }
     };
-    const [expandedOrderId, setExpandedOrderId] = useState<string | null>('ord-1');
-    const [savedFeedback, setSavedFeedback] = useState<Record<string, boolean>>({
-        'ord-1': true,
-    });
+
+    useEffect(() => {
+        fetchOrders();
+    }, []);
 
     // Calculate live count per status
     const filterCounts = {
@@ -150,8 +176,8 @@ export const AllOrders: React.FC = () => {
             !query ||
             o.orderNumber.toLowerCase().includes(query) ||
             o.customerName.toLowerCase().includes(query) ||
-            o.customer.phone.includes(query) ||
-            o.location.toLowerCase().includes(query);
+            (o.customer.phone && o.customer.phone.includes(query)) ||
+            (o.location && o.location.toLowerCase().includes(query));
         return matchesFilter && matchesSearch;
     });
 
@@ -159,19 +185,30 @@ export const AllOrders: React.FC = () => {
         setExpandedOrderId((prev) => (prev === orderId ? null : orderId));
     };
 
-    const handleUpdateShipmentStatus = (orderId: string, nextStatus: OrderStatus) => {
-        setOrders((prev) =>
-            prev.map((o) => {
-                if (o.id === orderId) {
-                    return {
-                        ...o,
-                        status: nextStatus,
-                        shipment: { ...o.shipment, status: nextStatus },
-                    };
-                }
-                return o;
-            })
-        );
+    const handleUpdateShipmentStatus = async (orderId: string, nextStatus: OrderStatus) => {
+        try {
+            await orderService.updateOrderStatus(orderId, {
+                status: nextStatus,
+                remarks: `Updated status to ${nextStatus}`,
+            });
+            setOrders((prev) =>
+                prev.map((o) => {
+                    if (o.id === orderId) {
+                        return {
+                            ...o,
+                            status: nextStatus,
+                            shipment: { ...o.shipment, status: nextStatus },
+                        };
+                    }
+                    return o;
+                })
+            );
+            richNotify.success(`Order status updated to "${nextStatus}".`);
+        } catch (err: any) {
+            console.error('Failed to update status on server:', err);
+            const errorMsg = err?.data?.message || err?.message || 'Server error';
+            richNotify.error(`Status update failed: ${errorMsg}`);
+        }
     };
 
     const handleShipmentInputChange = (
@@ -193,9 +230,64 @@ export const AllOrders: React.FC = () => {
         setSavedFeedback((prev) => ({ ...prev, [orderId]: false }));
     };
 
-    const handleSaveShipment = (orderId: string) => {
-        setSavedFeedback((prev) => ({ ...prev, [orderId]: true }));
-        richNotify.success('Shipment details saved successfully.');
+    const handleSaveShipment = async (orderId: string) => {
+        const target = orders.find((o) => o.id === orderId);
+        if (!target) return;
+
+        try {
+            await orderService.updateShipment(orderId, {
+                status: target.shipment.status,
+                courier: target.shipment.courier,
+                trackingNumber: target.shipment.trackingNumber,
+                notes: target.shipment.notes,
+            });
+            setSavedFeedback((prev) => ({ ...prev, [orderId]: true }));
+            richNotify.success('Shipment details saved successfully.');
+        } catch (err: any) {
+            console.error('Failed to save shipment details:', err);
+            const errorMsg = err?.data?.message || err?.message || 'Server error';
+            richNotify.error(`Failed to save shipment: ${errorMsg}`);
+        }
+    };
+
+    const [exporting, setExporting] = useState<boolean>(false);
+
+    const handleExportExcel = async () => {
+        try {
+            setExporting(true);
+            const statusParam = activeFilter === 'All' ? undefined : activeFilter;
+            await orderService.downloadOrdersExcel(statusParam);
+            richNotify.success('Orders Excel report downloaded successfully.');
+        } catch (err: any) {
+            console.error('Failed to download Excel report:', err);
+            const errorMsg = err?.data?.message || err?.message || 'Download failed';
+            richNotify.error(`Export failed: ${errorMsg}`);
+        } finally {
+            setExporting(false);
+        }
+    };
+
+    const handleCancelOrder = async (orderId: string) => {
+        try {
+            await orderService.cancelOrder(orderId, 'Cancelled by admin from dashboard');
+            setOrders((prev) =>
+                prev.map((o) => {
+                    if (o.id === orderId) {
+                        return {
+                            ...o,
+                            status: 'Cancelled' as OrderStatus,
+                            shipment: { ...o.shipment, status: 'Cancelled' as OrderStatus },
+                        };
+                    }
+                    return o;
+                })
+            );
+            richNotify.success('Order cancelled successfully.');
+        } catch (err: any) {
+            console.error('Failed to cancel order:', err);
+            const errorMsg = err?.data?.message || err?.message || 'Server error';
+            richNotify.error(`Failed to cancel order: ${errorMsg}`);
+        }
     };
 
     return (
@@ -207,14 +299,6 @@ export const AllOrders: React.FC = () => {
                         <span className={styles.ownerTag}>OWNER DASHBOARD</span>
                         <h1 className={styles.pageTitle}>ORDERS & SHIPMENTS</h1>
                     </div>
-                    <button
-                        type="button"
-                        className={styles.signOutBtn}
-                        onClick={handleSignOut}
-                    >
-                        <LogoutOutlined />
-                        <span>Sign out</span>
-                    </button>
                 </div>
 
                 {/* Tabs Navigation (ORDERS / PRODUCTS) */}
@@ -295,19 +379,32 @@ export const AllOrders: React.FC = () => {
                             type="button"
                             className={styles.refreshBtn}
                             onClick={() => {
-                                setSearchQuery('');
+                                fetchOrders(activeFilter === 'All' ? undefined : activeFilter, searchQuery);
                                 richNotify.info('Refreshed orders.');
                             }}
                         >
                             <ReloadOutlined />
                             <span>Refresh</span>
                         </button>
+                        <button
+                            type="button"
+                            className={styles.refreshBtn}
+                            onClick={handleExportExcel}
+                            disabled={exporting}
+                        >
+                            <DownloadOutlined />
+                            <span>{exporting ? 'Exporting...' : 'Export Excel'}</span>
+                        </button>
                     </div>
                 </div>
 
                 {/* Orders List with Click-to-Expand Detail View / Empty Filter State */}
                 <div>
-                    {filteredOrders.length === 0 ? (
+                    {loading ? (
+                        <div style={{ textAlign: 'center', padding: '60px 0' }}>
+                            <Spin size="large" />
+                        </div>
+                    ) : filteredOrders.length === 0 ? (
                         <Empty
                             image={
                                 <div className={styles.emptyIcon}>
@@ -418,8 +515,9 @@ export const AllOrders: React.FC = () => {
                                                     {/* Status Pills Selector */}
                                                     <div className={styles.shipmentStatusStrip}>
                                                         {STATUS_PILL_OPTIONS.map((statusOpt) => {
+                                                            const currentShipmentStatus = ord.shipment?.status || ord.status || 'New';
                                                             const isStatusActive =
-                                                                ord.shipment.status.toLowerCase() ===
+                                                                currentShipmentStatus.toLowerCase() ===
                                                                 statusOpt.toLowerCase();
                                                             return (
                                                                 <button
@@ -498,18 +596,45 @@ export const AllOrders: React.FC = () => {
                                                         <div className={styles.savedFeedback}>Saved.</div>
                                                     )}
 
-                                                    {/* Save Action CTA Button (AppButton SubmitButton) */}
-                                                    <SubmitButton
-                                                        onClick={() => handleSaveShipment(ord.id)}
-                                                        style={{
-                                                            width: '100%',
-                                                            height: 44,
-                                                            borderRadius: 4,
-                                                            fontWeight: 700,
-                                                        }}
-                                                    >
-                                                        Save shipment
-                                                    </SubmitButton>
+                                                    {/* Save and Cancel Actions */}
+                                                    <div style={{ display: 'flex', gap: 10, marginTop: 4 }}>
+                                                        <SubmitButton
+                                                            onClick={() => handleSaveShipment(ord.id)}
+                                                            style={{
+                                                                flex: 1,
+                                                                height: 44,
+                                                                borderRadius: 4,
+                                                                fontWeight: 700,
+                                                            }}
+                                                        >
+                                                            Save shipment
+                                                        </SubmitButton>
+                                                        {ord.status !== 'Cancelled' && ord.status !== 'Delivered' && (
+                                                            <Popconfirm
+                                                                title="Cancel Order"
+                                                                description={`Are you sure you want to cancel order ${ord.orderNumber}?`}
+                                                                okText="Yes, Cancel"
+                                                                cancelText="No"
+                                                                okButtonProps={{ danger: true }}
+                                                                onConfirm={() => handleCancelOrder(ord.id)}
+                                                            >
+                                                                <Button
+                                                                    danger
+                                                                    icon={<CloseCircleOutlined />}
+                                                                    style={{
+                                                                        height: 44,
+                                                                        borderRadius: 4,
+                                                                        fontWeight: 700,
+                                                                        backgroundColor: 'transparent',
+                                                                        borderColor: '#ff4d4f',
+                                                                        color: '#ff4d4f',
+                                                                    }}
+                                                                >
+                                                                    Cancel
+                                                                </Button>
+                                                            </Popconfirm>
+                                                        )}
+                                                    </div>
                                                 </Col>
                                             </Row>
                                         </div>

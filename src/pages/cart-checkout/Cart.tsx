@@ -23,7 +23,8 @@ import {
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { SubmitButton } from '../../components/app-button/AppButton';
-import keychainImg from '../../assests/1cliq-keychain.jpg';
+import { orderService } from '../../services/orderService';
+import { CreateOrderRequest } from '../../interfaces';
 import styles from './Cart.module.css';
 
 /* ==========================================================================
@@ -59,22 +60,18 @@ export interface PlacedOrderSummary {
   paymentMethod: string;
 }
 
-/**
- * Initial sample cart item matching user design screenshot:
- * "Customised Key Chain" / "Standard / Clear" / ₹99
- */
-const DEFAULT_CART_ITEMS: CartItem[] = [
-  {
-    id: 'cart-item-kc-1',
-    productId: 'keychain',
-    title: 'Customised Key Chain',
-    variant: 'Standard / Clear',
-    unitPrice: 99,
-    quantity: 1,
-    image: keychainImg,
-    photos: [],
-  },
-];
+const getSavedCartItems = (): CartItem[] => {
+  try {
+    const raw = localStorage.getItem('buy2go_cart');
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) return parsed;
+    }
+  } catch {
+    // ignore
+  }
+  return [];
+};
 
 /* ==========================================================================
    Cart & Checkout Component
@@ -85,10 +82,20 @@ export const Cart: React.FC = () => {
   const [form] = Form.useForm<DeliveryFormValues>();
 
   // State
-  const [cartItems, setCartItems] = useState<CartItem[]>(DEFAULT_CART_ITEMS);
+  const [cartItems, setCartItems] = useState<CartItem[]>(getSavedCartItems);
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [placedOrder, setPlacedOrder] = useState<PlacedOrderSummary | null>(null);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState<boolean>(false);
+
+  // Sync cart changes to localStorage
+  const updateCartState = (newItems: CartItem[]) => {
+    setCartItems(newItems);
+    try {
+      localStorage.setItem('buy2go_cart', JSON.stringify(newItems));
+    } catch {
+      // ignore
+    }
+  };
 
   // Calculations
   const totalAmount = useMemo(() => {
@@ -100,51 +107,64 @@ export const Cart: React.FC = () => {
 
   // Stepper handlers
   const handleUpdateQuantity = (itemId: string, delta: number) => {
-    setCartItems((prev) =>
-      prev.map((item) => {
-        if (item.id === itemId) {
-          const nextQty = Math.max(1, item.quantity + delta);
-          return { ...item, quantity: nextQty };
-        }
-        return item;
-      })
-    );
+    const updated = cartItems.map((item) => {
+      if (item.id === itemId) {
+        const nextQty = Math.max(1, item.quantity + delta);
+        return { ...item, quantity: nextQty };
+      }
+      return item;
+    });
+    updateCartState(updated);
   };
 
   // Remove cart item
   const handleRemoveItem = (itemId: string) => {
     const target = cartItems.find((i) => i.id === itemId);
-    setCartItems((prev) => prev.filter((item) => item.id !== itemId));
+    const updated = cartItems.filter((item) => item.id !== itemId);
+    updateCartState(updated);
     richNotify.success(`Removed "${target?.title || 'Item'}" from cart.`);
   };
 
   // Add photos via Ant Design Upload
-  const handleBeforeUpload = (itemId: string, file: File) => {
+  const handleBeforeUpload = async (itemId: string, file: File) => {
     const fileName = file.name;
-    setCartItems((prev) =>
-      prev.map((item) => {
+    try {
+      // Try uploading to backend MinIO if available
+      const remotePhotoUrl = await orderService.uploadOrderPhoto(file);
+      const photoToSave = typeof remotePhotoUrl === 'string' && remotePhotoUrl ? remotePhotoUrl : fileName;
+      const updated = cartItems.map((item) => {
+        if (item.id === itemId) {
+          return { ...item, photos: [...item.photos, photoToSave] };
+        }
+        return item;
+      });
+      updateCartState(updated);
+      richNotify.success(`Attached "${fileName}"`);
+    } catch (err) {
+      console.warn('Backend photo upload fallback to file name:', err);
+      const updated = cartItems.map((item) => {
         if (item.id === itemId) {
           return { ...item, photos: [...item.photos, fileName] };
         }
         return item;
-      })
-    );
-    richNotify.success(`Attached "${fileName}" to ${cartItems.find(i => i.id === itemId)?.title}`);
+      });
+      updateCartState(updated);
+      richNotify.success(`Attached "${fileName}"`);
+    }
     return false; // Prevent default HTTP upload POST
   };
 
   // Remove single uploaded photo tag
   const handleRemovePhoto = (itemId: string, photoIdx: number) => {
-    setCartItems((prev) =>
-      prev.map((item) => {
-        if (item.id === itemId) {
-          const updated = [...item.photos];
-          updated.splice(photoIdx, 1);
-          return { ...item, photos: updated };
-        }
-        return item;
-      })
-    );
+    const updated = cartItems.map((item) => {
+      if (item.id === itemId) {
+        const photos = [...item.photos];
+        photos.splice(photoIdx, 1);
+        return { ...item, photos };
+      }
+      return item;
+    });
+    updateCartState(updated);
   };
 
   // Order Submission via Ant Design Form onFinish
@@ -157,11 +177,32 @@ export const Cart: React.FC = () => {
     try {
       setSubmitting(true);
 
-      // Simulate backend checkout API processing
-      await new Promise((resolve) => setTimeout(resolve, 800));
+      const orderPayload: CreateOrderRequest = {
+        customer: {
+          name: values.fullName,
+          phone: values.phone,
+          address: `${values.address}, ${values.city} - ${values.pincode}`,
+        },
+        location: `${values.city} ${values.pincode}`,
+        totalAmount,
+        items: cartItems.map((item) => ({
+          title: item.title,
+          variant: item.variant,
+          quantity: item.quantity,
+          price: item.unitPrice,
+          photo: item.image,
+          photos: item.photos,
+        })),
+      };
+
+      const res = await orderService.createOrder(orderPayload);
+      const resData = (res as any)?.data || res;
 
       const orderResult: PlacedOrderSummary = {
-        orderId: `B2G-${Math.floor(100000 + Math.random() * 900000)}`,
+        orderId:
+          resData?.orderNumber ||
+          resData?.id ||
+          `#B2G-${Math.floor(100000 + Math.random() * 900000)}`,
         placedAt: new Date().toLocaleDateString('en-IN', {
           year: 'numeric',
           month: 'short',
@@ -177,9 +218,17 @@ export const Cart: React.FC = () => {
 
       setPlacedOrder(orderResult);
       setIsSuccessModalOpen(true);
+      try {
+        localStorage.removeItem('buy2go_cart');
+      } catch {
+        // ignore
+      }
+      setCartItems([]);
       richNotify.success('Order placed successfully! Pay on delivery.');
-    } catch {
-      richNotify.error('Failed to submit order. Please check details and try again.');
+    } catch (err: any) {
+      console.error('Failed to submit order:', err);
+      const msg = err?.data?.message || err?.message || 'Failed to submit order. Please try again.';
+      richNotify.error(msg);
     } finally {
       setSubmitting(false);
     }

@@ -23,3 +23,14 @@ export const UPLOAD_PRODUCT_IMAGE_ENDPOINT = `${BASE_URL}products/upload-image`;
 // Orders & Shipments
 export const ORDERS_ENDPOINT = `${BASE_URL}orders`;
 export const ORDER_BY_ID_ENDPOINT = (id: string | number) => `${BASE_URL}orders/${id}`;
+export const ORDER_STATUS_ENDPOINT = (id: string | number) => `${BASE_URL}orders/${id}/status`;
+export const ORDER_SHIPMENT_ENDPOINT = (id: string | number) => `${BASE_URL}orders/${id}/shipment`;
+export const ORDER_CANCEL_ENDPOINT = (id: string | number) => `${BASE_URL}orders/${id}/cancel`;
+export const ORDER_UPLOAD_PHOTO_ENDPOINT = `${BASE_URL}orders/upload-photo`;
+export const ORDER_CREATE_ENDPOINT = `${BASE_URL}orders/create`;
+export const ORDER_BULK_CREATE_ENDPOINT = `${BASE_URL}orders/bulk-create`;
+export const ORDER_TRACK_ENDPOINT = (orderNumber: string) => `${BASE_URL}orders/track/${orderNumber}`;
+export const ORDER_MY_ORDERS_ENDPOINT = `${BASE_URL}orders/my-orders`;
+export const ORDER_DOWNLOAD_EXCEL_ENDPOINT = `${BASE_URL}orders/download-excel`;
+export const ORDER_ITEM_CUSTOMIZATION_ENDPOINT = (id: string | number, itemId: string | number) =>
+  `${BASE_URL}orders/${id}/items/${itemId}/customization`;
