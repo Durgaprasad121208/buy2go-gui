@@ -1,7 +1,16 @@
 import React from 'react';
 import { Layout } from 'antd';
-import { ShoppingOutlined } from '@ant-design/icons';
+import {
+  ShoppingOutlined,
+  LogoutOutlined,
+  UserOutlined,
+  DashboardOutlined,
+} from '@ant-design/icons';
+import { useNavigate } from 'react-router-dom';
 import { DarkButton } from '../app-button/AppButton';
+import { useAppDispatch, useAppSelector } from '../../redux/hooks';
+import { logout, selectAuthUser, selectIsAdmin, selectIsAuthenticated } from '../../redux/slices/authSlice';
+import { richNotify } from '../../utils/notify';
 import styles from './AppHeader.module.css';
 
 const { Header } = Layout;
@@ -37,6 +46,12 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   className = '',
   style,
 }) => {
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const user = useAppSelector(selectAuthUser);
+  const isAuthenticated = useAppSelector(selectIsAuthenticated);
+  const isAdmin = useAppSelector(selectIsAdmin);
+
   const handleLogoClick = (e: React.MouseEvent) => {
     if (onLogoClick) {
       e.preventDefault();
@@ -49,6 +64,12 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
       e.preventDefault();
       onProductsClick();
     }
+  };
+
+  const handleSignOut = () => {
+    dispatch(logout());
+    richNotify.success('Signed out successfully.');
+    navigate('/login');
   };
 
   return (
@@ -76,6 +97,21 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
           Products
         </a>
 
+        {/* Admin Dashboard Quick Link for ROLE_ADMIN */}
+        {isAdmin && (
+          <a
+            href="/admin/orders"
+            onClick={(e) => {
+              e.preventDefault();
+              navigate('/admin/orders');
+            }}
+            className={styles.adminLink}
+          >
+            <DashboardOutlined />
+            <span>Admin</span>
+          </a>
+        )}
+
         <DarkButton
           onClick={onCartClick}
           className={styles.cartBtn}
@@ -86,6 +122,31 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
             <span className={styles.cartBadge}>{cartCount}</span>
           )}
         </DarkButton>
+
+        {/* Sign In / Sign Out actions */}
+        {isAuthenticated ? (
+          <button
+            type="button"
+            onClick={handleSignOut}
+            className={styles.authBtn}
+            title={`Signed in as ${user?.userName || user?.email || (isAdmin ? 'Admin' : 'Customer')}`}
+          >
+            <LogoutOutlined />
+            <span>Sign out</span>
+          </button>
+        ) : (
+          <a
+            href="/login"
+            onClick={(e) => {
+              e.preventDefault();
+              navigate('/login');
+            }}
+            className={styles.authBtn}
+          >
+            <UserOutlined />
+            <span>Sign in</span>
+          </a>
+        )}
 
         {extraRight}
       </div>

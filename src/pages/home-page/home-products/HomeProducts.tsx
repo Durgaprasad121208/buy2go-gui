@@ -1,7 +1,9 @@
-import React from 'react';
-import { Row, Col, Button } from 'antd';
+import React, { useState, useEffect } from 'react';
+import { Row, Col, Button, Spin } from 'antd';
 import { ArrowRight } from 'lucide-react';
-import { PRODUCTS_COLLECTION, ProductItem } from '../../../data/products';
+import { ProductItem } from '../../../data/products';
+import { productService } from '../../../services/productService';
+import { mapToProductItem } from '../../products/ProductsPage';
 import styles from './HomeProducts.module.css';
 
 export interface HomeProductsProps {
@@ -13,7 +15,7 @@ export interface HomeProductsProps {
 
 /**
  * HomeProducts - "CHOOSE YOUR CANVAS" The Collection section
- * Built with Ant Design grid and components, pixel-perfect match to design screenshot.
+ * Built with Ant Design grid and components, connected to productService.
  */
 export const HomeProducts: React.FC<HomeProductsProps> = ({
   onProductClick,
@@ -21,6 +23,38 @@ export const HomeProducts: React.FC<HomeProductsProps> = ({
   className = '',
   style,
 }) => {
+  const [products, setProducts] = useState<ProductItem[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    let isMounted = true;
+    const fetchLiveProducts = async () => {
+      try {
+        setLoading(true);
+        const res = await productService.getAllProducts();
+        const data = (res as any)?.data || res;
+        const rawList = Array.isArray(data) ? data : (data?.content || []);
+        if (isMounted) {
+          setProducts(rawList.map(mapToProductItem));
+        }
+      } catch (err) {
+        console.error('Backend product catalog unreachable for home collection:', err);
+        if (isMounted) {
+          setProducts([]);
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchLiveProducts();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   return (
     <section id={id} className={`${styles.section} ${className}`.trim()} style={style}>
       <div className={styles.container}>
@@ -47,8 +81,17 @@ export const HomeProducts: React.FC<HomeProductsProps> = ({
         </Row>
 
         {/* 4 Product Cards Grid */}
-        <Row gutter={[24, 32]} className={styles.productsRow}>
-          {PRODUCTS_COLLECTION.map((product) => (
+        {loading ? (
+          <div style={{ textAlign: 'center', padding: '60px 0' }}>
+            <Spin size="large" />
+          </div>
+        ) : products.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '60px 0', color: 'rgba(255,255,255,0.65)', fontSize: 14 }}>
+            No products available in the collection yet.
+          </div>
+        ) : (
+          <Row gutter={[24, 32]} className={styles.productsRow}>
+            {products.map((product) => (
             <Col key={product.id} xs={24} sm={12} lg={6}>
               <div
                 className={styles.cardWrapper}
@@ -99,6 +142,7 @@ export const HomeProducts: React.FC<HomeProductsProps> = ({
             </Col>
           ))}
         </Row>
+        )}
       </div>
     </section>
   );

@@ -20,10 +20,19 @@ export function checkIsAdmin(user: any): boolean {
     user.roleName ||
     user.role ||
     user.userType ||
+    user.authorities?.[0]?.authority ||
+    user.roles?.[0] ||
     ''
   ).toString().toUpperCase();
 
-  return role === 'ADMIN' || role === 'SUPERADMIN' || role === 'OWNER';
+  return (
+    role === 'ADMIN' ||
+    role === 'ROLE_ADMIN' ||
+    role === 'SUPERADMIN' ||
+    role === 'ROLE_SUPERADMIN' ||
+    role === 'OWNER' ||
+    role === 'ROLE_OWNER'
+  );
 }
 
 export function checkIsOwner(user: any): boolean {
@@ -31,17 +40,65 @@ export function checkIsOwner(user: any): boolean {
   const role = (
     user.roleName ||
     user.role ||
+    user.authorities?.[0]?.authority ||
     ''
   ).toString().toUpperCase();
 
-  return role === 'OWNER' || role === 'ADMIN';
+  return (
+    role === 'OWNER' ||
+    role === 'ROLE_OWNER' ||
+    role === 'ADMIN' ||
+    role === 'ROLE_ADMIN'
+  );
 }
 
+export function checkIsCustomer(user: any): boolean {
+  if (!user) return false;
+  const role = (
+    user.roleName ||
+    user.role ||
+    user.userType ||
+    user.authorities?.[0]?.authority ||
+    user.roles?.[0] ||
+    ''
+  ).toString().toUpperCase();
+
+  return (
+    role === 'CUSTOMER' ||
+    role === 'ROLE_CUSTOMER' ||
+    role === 'USER' ||
+    role === 'ROLE_USER'
+  );
+}
+
+// Helper to hydrate user from persistent session cookies
+export const getInitialUser = (): Buy2GoUser | null => {
+  const token = Cookies.get('accessToken');
+  if (!token) return null;
+
+  const userId = Cookies.get('userId');
+  const userName = Cookies.get('userName');
+  const role = Cookies.get('role');
+  if (!userId && !userName && !role) return null;
+
+  return {
+    id: userId || 'user',
+    email: userName || '',
+    userName: userName || '',
+    role: role || 'ROLE_CUSTOMER',
+    roleName: role || 'ROLE_CUSTOMER',
+    firstName: Cookies.get('firstName') || userName || '',
+    lastName: Cookies.get('lastName') || '',
+  };
+};
+
+const initialUser = getInitialUser();
+
 const initialState: AuthState = {
-  user: null,
+  user: initialUser,
   isAuthenticated: !!Cookies.get('accessToken'),
-  isAdmin: false,
-  isOwner: false,
+  isAdmin: checkIsAdmin(initialUser),
+  isOwner: checkIsOwner(initialUser),
   isLoading: false,
   error: null,
   token: Cookies.get('accessToken') || null,
@@ -79,13 +136,20 @@ export const loginAsync = createAsyncThunk(
       const data = response?.data || response;
       const token = data?.token || data?.accessToken;
 
+      const rawRole = (
+        data?.role ||
+        data?.roleName ||
+        data?.authorities?.[0]?.authority ||
+        (credentials.email.toLowerCase().includes('admin') ? 'ROLE_ADMIN' : 'ROLE_CUSTOMER')
+      ).toString().toUpperCase();
+
       const user: Buy2GoUser = {
         id: data?.id || data?.userId || 'user-' + Date.now(),
         firstName: data?.firstName || '',
         lastName: data?.lastName || '',
         email: data?.email || credentials.email,
-        role: data?.role || 'CUSTOMER',
-        roleName: data?.role || 'CUSTOMER',
+        role: rawRole,
+        roleName: rawRole,
         userName: data?.userName || data?.email,
       };
 
@@ -100,6 +164,10 @@ export const loginAsync = createAsyncThunk(
         Cookies.set('userId', String(user.id), { expires: expiryDays });
       }
 
+      Cookies.set('userName', user.userName || user.email || '', { expires: expiryDays });
+      Cookies.set('role', user.role || 'ROLE_CUSTOMER', { expires: expiryDays });
+      Cookies.set('firstName', user.firstName || '', { expires: expiryDays });
+      Cookies.set('lastName', user.lastName || '', { expires: expiryDays });
       Cookies.set('loginTimestamp', timestamp, { expires: expiryDays });
 
       const isAdmin = checkIsAdmin(user);
@@ -149,28 +217,37 @@ export const registerAsync = createAsyncThunk(
 );
 
 /**
+ * Clear session cookies and local storage
+ */
+export const clearAuthSessionCookies = () => {
+  Cookies.remove('accessToken');
+  Cookies.remove('userId');
+  Cookies.remove('userName');
+  Cookies.remove('role');
+  Cookies.remove('firstName');
+  Cookies.remove('lastName');
+  Cookies.remove('loginTimestamp');
+  try {
+    const savedTheme = localStorage.getItem('buy2go-theme');
+    localStorage.clear();
+    sessionStorage.clear();
+    if (savedTheme) {
+      localStorage.setItem('buy2go-theme', savedTheme);
+    }
+  } catch {
+    // ignore
+  }
+};
+
+/**
  * Logout User
  */
 export const logoutAsync = createAsyncThunk(
   'auth/logout',
   async () => {
     setLoggingOutFlag(true);
-    Cookies.remove('accessToken');
-    Cookies.remove('userId');
-    Cookies.remove('loginTimestamp');
-
-    try {
-      const savedTheme = localStorage.getItem('buy2go-theme');
-      localStorage.clear();
-      sessionStorage.clear();
-      if (savedTheme) {
-        localStorage.setItem('buy2go-theme', savedTheme);
-      }
-    } catch {
-      // ignore
-    }
-
-    await new Promise((r) => setTimeout(r, 200));
+    clearAuthSessionCookies();
+    await new Promise((r) => setTimeout(r, 150));
     return null;
   }
 );
@@ -180,6 +257,8 @@ const authSlice = createSlice({
   initialState,
   reducers: {
     logout(state) {
+      setLoggingOutFlag(true);
+      clearAuthSessionCookies();
       state.user = null;
       state.token = null;
       state.isAuthenticated = false;
@@ -251,6 +330,7 @@ export const { logout, setUser, clearError } = authSlice.actions;
 export const selectAuthUser = (state: { auth: AuthState }) => state.auth.user;
 export const selectIsAdmin = (state: { auth: AuthState }) => state.auth.isAdmin;
 export const selectIsOwner = (state: { auth: AuthState }) => state.auth.isOwner;
+export const selectIsCustomer = (state: { auth: AuthState }) => checkIsCustomer(state.auth.user);
 export const selectIsAuthenticated = (state: { auth: AuthState }) => state.auth.isAuthenticated;
 
 export default authSlice.reducer;

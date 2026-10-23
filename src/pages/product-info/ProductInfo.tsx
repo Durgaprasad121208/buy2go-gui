@@ -14,10 +14,7 @@ import {
     X,
 } from 'lucide-react';
 import { SubmitButton, DarkButton } from '../../components/app-button/AppButton';
-import keychainImg from '../../assests/1cliq-keychain.jpg';
-import mugImg from '../../assests/1cliq-mug.jpg';
-import capImg from '../../assests/1cliq-cap.jpg';
-import tshirtImg from '../../assests/1cliq-tshirt.jpg';
+import { productService } from '../../services/productService';
 import styles from './ProductInfo.module.css';
 
 /* ==========================================================================
@@ -80,120 +77,14 @@ export interface OrderItemPayload {
     timestamp: string;
 }
 
-/* ==========================================================================
-   Mock Initial Dataset (Mirrors REST API response structure)
-   ========================================================================== */
+export const DEFAULT_PRODUCT_IMAGE =
+    'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=800&auto=format&fit=crop&q=80';
 
-const INITIAL_PRODUCT_CATALOG: Record<string, ProductRecord> = {
-    keychain: {
-        id: 'keychain',
-        code: 'PRD-KC-01',
-        title: 'CUSTOMISED KEY CHAIN',
-        category: 'ACCESSORIES',
-        price: 99,
-        currency: '₹',
-        description:
-            'Durable acrylic key chain with your photo, name, or logo — perfect as gifts.',
-        image: keychainImg,
-        colors: [
-            { id: 'clr-clear', label: 'Clear', value: 'clear', inStock: true },
-            { id: 'clr-black', label: 'Black', value: 'black', inStock: true },
-        ],
-        hasTextToPrint: true,
-        textPlaceholder: 'e.g. your name or a short line',
-        maxPhotosAllowed: 8,
-        allowedPhotoFormats: ['JPG', 'PNG', 'PDF'],
-        isCodAvailable: true,
-        minQuantity: 1,
-        maxQuantity: 100,
-        badges: [
-            { id: 'b-1', label: 'Free delivery', type: 'delivery' },
-            { id: 'b-2', label: 'Cash on delivery', type: 'cod' },
-            { id: 'b-3', label: 'Printed fresh after your order', type: 'fresh' },
-        ],
-    },
-    mug: {
-        id: 'mug',
-        code: 'PRD-MG-02',
-        title: 'MUG PRINTING',
-        category: 'DRINKWARE',
-        price: 199,
-        currency: '₹',
-        description:
-            'Glossy ceramic mugs with microwave-safe vivid sublimation print.',
-        image: mugImg,
-        colors: [
-            { id: 'clr-white', label: 'White', value: 'white', inStock: true },
-            { id: 'clr-black', label: 'Black', value: 'black', inStock: true },
-        ],
-        hasTextToPrint: true,
-        textPlaceholder: 'e.g. favorite quote, name or date',
-        maxPhotosAllowed: 4,
-        allowedPhotoFormats: ['JPG', 'PNG', 'PDF'],
-        isCodAvailable: true,
-        minQuantity: 1,
-        maxQuantity: 50,
-        badges: [
-            { id: 'b-1', label: 'Free delivery', type: 'delivery' },
-            { id: 'b-2', label: 'Cash on delivery', type: 'cod' },
-            { id: 'b-3', label: 'Printed fresh after your order', type: 'fresh' },
-        ],
-    },
-    cap: {
-        id: 'cap',
-        code: 'PRD-CP-03',
-        title: 'CAP PRINTING',
-        category: 'APPAREL',
-        price: 249,
-        currency: '₹',
-        description:
-            'Structured 6-panel cotton twill caps with high-density embroidered monogram or print.',
-        image: capImg,
-        colors: [
-            { id: 'clr-black', label: 'Black', value: 'black', inStock: true },
-            { id: 'clr-white', label: 'White', value: 'white', inStock: true },
-        ],
-        hasTextToPrint: true,
-        textPlaceholder: 'e.g. monogram, team or company name',
-        maxPhotosAllowed: 2,
-        allowedPhotoFormats: ['JPG', 'PNG', 'PDF'],
-        isCodAvailable: true,
-        minQuantity: 1,
-        maxQuantity: 100,
-        badges: [
-            { id: 'b-1', label: 'Free delivery', type: 'delivery' },
-            { id: 'b-2', label: 'Cash on delivery', type: 'cod' },
-            { id: 'b-3', label: 'Printed fresh after your order', type: 'fresh' },
-        ],
-    },
-    tshirt: {
-        id: 'tshirt',
-        code: 'PRD-TS-04',
-        title: 'T-SHIRT PRINTING',
-        category: 'APPAREL',
-        price: 349,
-        currency: '₹',
-        description:
-            '100% combed cotton 220 GSM heavyweight tees with breathable DTG print.',
-        image: tshirtImg,
-        colors: [
-            { id: 'clr-black', label: 'Black', value: 'black', inStock: true },
-            { id: 'clr-white', label: 'White', value: 'white', inStock: true },
-        ],
-        hasTextToPrint: true,
-        textPlaceholder: 'e.g. back text, name or jersey number',
-        maxPhotosAllowed: 4,
-        allowedPhotoFormats: ['JPG', 'PNG', 'PDF'],
-        isCodAvailable: true,
-        minQuantity: 1,
-        maxQuantity: 100,
-        badges: [
-            { id: 'b-1', label: 'Free delivery', type: 'delivery' },
-            { id: 'b-2', label: 'Cash on delivery', type: 'cod' },
-            { id: 'b-3', label: 'Printed fresh after your order', type: 'fresh' },
-        ],
-    },
-};
+export const DEFAULT_BADGES: TrustBadgeItem[] = [
+    { id: 'b-1', label: 'Free delivery', type: 'delivery' },
+    { id: 'b-2', label: 'Cash on delivery', type: 'cod' },
+    { id: 'b-3', label: 'Printed fresh after your order', type: 'fresh' },
+];
 
 /* ==========================================================================
    Component Props
@@ -205,6 +96,51 @@ export interface ProductInfoProps {
     onAddToCart?: (payload: OrderItemPayload, rawFiles: File[]) => void;
     onBuyNow?: (payload: OrderItemPayload, rawFiles: File[]) => void;
 }
+
+export const mapToProductRecord = (apiData: any, targetId: string): ProductRecord => {
+    let colorOptions: ProductColorOption[] = [];
+    if (Array.isArray(apiData?.colors) && apiData.colors.length > 0) {
+        colorOptions = apiData.colors.map((c: any, idx: number) =>
+            typeof c === 'string'
+                ? { id: `clr-${idx}`, label: c, value: c.toLowerCase(), inStock: true }
+                : {
+                      id: c.id || `clr-${idx}`,
+                      label: c.label || c.name || 'Default',
+                      value: c.value || 'default',
+                      inStock: c.inStock ?? true,
+                  }
+        );
+    } else if (typeof apiData?.colours === 'string' && apiData.colours.trim()) {
+        colorOptions = apiData.colours.split(',').map((c: string, idx: number) => {
+            const clean = c.trim();
+            return { id: `clr-${idx}`, label: clean, value: clean.toLowerCase(), inStock: true };
+        });
+    } else {
+        colorOptions = [
+            { id: 'clr-default', label: 'Standard', value: 'standard', inStock: true },
+        ];
+    }
+
+    return {
+        id: String(apiData?.id || targetId),
+        code: apiData?.code || `PRD-${String(apiData?.id || targetId).toUpperCase()}`,
+        title: apiData?.title || apiData?.name || 'Custom Product',
+        category: (apiData?.category || 'APPAREL').toUpperCase() as ProductCategory,
+        price: Number(apiData?.price || 0),
+        currency: apiData?.currency || '₹',
+        description: apiData?.description || 'Personalized merchandise printed fresh on demand with premium materials.',
+        image: apiData?.image || apiData?.imageUrl || apiData?.photoUrl || DEFAULT_PRODUCT_IMAGE,
+        colors: colorOptions,
+        hasTextToPrint: apiData?.hasTextToPrint ?? true,
+        textPlaceholder: apiData?.textPlaceholder || 'e.g. your name or short line',
+        maxPhotosAllowed: apiData?.maxPhotosAllowed || 8,
+        allowedPhotoFormats: apiData?.allowedPhotoFormats || ['JPG', 'PNG', 'PDF'],
+        isCodAvailable: apiData?.isCodAvailable ?? true,
+        minQuantity: apiData?.minQuantity || 1,
+        maxQuantity: apiData?.maxQuantity || 100,
+        badges: apiData?.badges || DEFAULT_BADGES,
+    };
+};
 
 /**
  * ProductInfo - API-friendly Product Details Component
@@ -218,44 +154,86 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({
     const navigate = useNavigate();
     const { id: routeParamId } = useParams<{ id?: string }>();
 
-    // Determine active product key (fallback to keychain)
-    const targetId = routeParamId || initialProductId || 'keychain';
+    // Determine active product key
+    const targetId = routeParamId || initialProductId || '';
 
     // API State management
-    const [product, setProduct] = useState<ProductRecord>(
-        INITIAL_PRODUCT_CATALOG[targetId] || INITIAL_PRODUCT_CATALOG.keychain
-    );
-    const [loading, setLoading] = useState<boolean>(false);
-
-    // Sync state if route parameter changes (mirrors API fetch lifecycle)
-    useEffect(() => {
-        setLoading(true);
-        const resolvedRecord =
-            INITIAL_PRODUCT_CATALOG[targetId] || INITIAL_PRODUCT_CATALOG.keychain;
-        setProduct(resolvedRecord);
-
-        // Reset default color to first available option
-        if (resolvedRecord.colors.length > 0) {
-            setSelectedColor(resolvedRecord.colors[0].label);
-        }
-        setLoading(false);
-    }, [targetId]);
+    const [product, setProduct] = useState<ProductRecord | null>(null);
+    const [loading, setLoading] = useState<boolean>(true);
 
     // Form & Customization state
-    const [selectedColor, setSelectedColor] = useState<string>(
-        product.colors[0]?.label || 'Clear'
-    );
+    const [selectedColor, setSelectedColor] = useState<string>('Standard');
     const [customText, setCustomText] = useState<string>('');
     const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
     const [quantity, setQuantity] = useState<number>(1);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
+    // Sync state if route parameter changes - fetch live product via productService
+    useEffect(() => {
+        let isMounted = true;
+        setLoading(true);
+
+        const fetchProduct = async () => {
+            if (!targetId) {
+                if (isMounted) setLoading(false);
+                return;
+            }
+
+            try {
+                const res = await productService.getProductById(targetId);
+                const data = (res as any)?.data || res;
+                if (isMounted && data && (data.id || data.title || data.name)) {
+                    const mapped = mapToProductRecord(data, targetId);
+                    setProduct(mapped);
+                    if (mapped.colors.length > 0) {
+                        setSelectedColor(mapped.colors[0].label);
+                    }
+                    setLoading(false);
+                    return;
+                }
+            } catch (err) {
+                console.warn('Backend getProductById failed, querying catalog list:', err);
+            }
+
+            try {
+                const catalogRes = await productService.getAllProducts();
+                const catData = (catalogRes as any)?.data || catalogRes;
+                const list = Array.isArray(catData) ? catData : (catData?.content || []);
+                const found = list.find(
+                    (p: any) => String(p.id) === String(targetId) || p.slug === targetId
+                );
+                if (isMounted && found) {
+                    const mapped = mapToProductRecord(found, targetId);
+                    setProduct(mapped);
+                    if (mapped.colors.length > 0) {
+                        setSelectedColor(mapped.colors[0].label);
+                    }
+                    setLoading(false);
+                    return;
+                }
+            } catch (catalogErr) {
+                console.error('Failed to load product from catalog:', catalogErr);
+            }
+
+            if (isMounted) {
+                setProduct(null);
+                setLoading(false);
+            }
+        };
+
+        fetchProduct();
+        return () => {
+            isMounted = false;
+        };
+    }, [targetId]);
+
     // Computed Values via useMemo
     const subtotal = useMemo(() => {
-        return product.price * quantity;
-    }, [product.price, quantity]);
+        return product ? product.price * quantity : 0;
+    }, [product, quantity]);
 
-    const orderPayload = useMemo<OrderItemPayload>(() => {
+    const orderPayload = useMemo<OrderItemPayload | null>(() => {
+        if (!product) return null;
         return {
             productId: product.id,
             productCode: product.code,
@@ -282,6 +260,7 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({
     };
 
     const handleQtyChange = (delta: number) => {
+        if (!product) return;
         setQuantity((prev) => {
             const next = prev + delta;
             if (next < product.minQuantity) return product.minQuantity;
@@ -293,9 +272,10 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({
     const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (!e.target.files) return;
         const incoming = Array.from(e.target.files);
+        const maxPhotos = product?.maxPhotosAllowed || 8;
 
-        if (uploadedFiles.length + incoming.length > product.maxPhotosAllowed) {
-            richNotify.warning(`Maximum ${product.maxPhotosAllowed} photos allowed.`);
+        if (uploadedFiles.length + incoming.length > maxPhotos) {
+            richNotify.warning(`Maximum ${maxPhotos} photos allowed.`);
             return;
         }
 
@@ -308,6 +288,7 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({
     };
 
     const handleAddToCart = () => {
+        if (!product || !orderPayload) return;
         if (onAddToCart) {
             onAddToCart(orderPayload, uploadedFiles);
         } else {
@@ -318,6 +299,7 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({
     };
 
     const handleBuyNow = () => {
+        if (!product || !orderPayload) return;
         if (onBuyNow) {
             onBuyNow(orderPayload, uploadedFiles);
         } else {
@@ -328,8 +310,20 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({
 
     if (loading) {
         return (
-            <div className={styles.pageContainer} style={{ display: 'grid', placeItems: 'center' }}>
+            <div className={styles.pageContainer} style={{ display: 'grid', placeItems: 'center', minHeight: '60vh' }}>
                 <Spin size="large" />
+            </div>
+        );
+    }
+
+    if (!product) {
+        return (
+            <div className={styles.pageContainer} style={{ display: 'grid', placeItems: 'center', minHeight: '60vh', textAlign: 'center', padding: '60px 20px' }}>
+                <div>
+                    <h2 style={{ color: '#fff', marginBottom: 16 }}>Product Not Found</h2>
+                    <p style={{ color: 'rgba(255,255,255,0.65)', marginBottom: 24 }}>The product you are looking for does not exist or has been removed from catalogue.</p>
+                    <DarkButton onClick={() => navigate('/products')}>Back to products</DarkButton>
+                </div>
             </div>
         );
     }

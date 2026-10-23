@@ -1,5 +1,6 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
+import Cookies from 'js-cookie';
 import MainLayout from './components/app-layout/AppLayout';
 import { HomePage } from './pages/home-page/HomePage';
 import { ProductsPage } from './pages/products/ProductsPage';
@@ -8,19 +9,24 @@ import { Cart } from './pages/cart-checkout/Cart';
 import { AddProducts } from './pages/admin-pages/products/AddProducts';
 import { AllOrders } from './pages/admin-pages/orders/AllOrders';
 import { AuthPage } from './pages/auth/AuthPage';
+import { useAppSelector } from './redux/hooks';
+import { selectAuthUser, checkIsAdmin } from './redux/slices/authSlice';
+import { richNotify } from './utils/notify';
 import './App.css';
 
 /**
- * Route Configuration Table
- * Add new pages and feature routes here
+ * Route Configuration Tables
  */
-export const availableRoutes = [
+export const customerRoutes = [
   { path: 'products', element: ProductsPage },
   { path: 'product-info', element: ProductInfo },
   { path: 'product-info/:id', element: ProductInfo },
   { path: 'products/:id', element: ProductInfo },
   { path: 'cart', element: Cart },
   { path: 'checkout', element: Cart },
+];
+
+export const adminRoutes = [
   { path: 'admin', element: AddProducts },
   { path: 'admin/products', element: AddProducts },
   { path: 'admin/orders', element: AllOrders },
@@ -34,12 +40,23 @@ interface RouteGuardProps {
 }
 
 export const PublicRoute: React.FC<RouteGuardProps> = ({ children }) => {
-  // If user is already logged in, redirect to '/' if needed
   return children;
 };
 
 export const ProtectedRoute: React.FC<RouteGuardProps> = ({ children }) => {
-  // Check auth token / state here
+  return children;
+};
+
+export const AdminRoute: React.FC<RouteGuardProps> = ({ children }) => {
+  const user = useAppSelector(selectAuthUser);
+  const cookieRole = (Cookies.get('role') || '').toUpperCase();
+  const isAdmin = checkIsAdmin(user) || cookieRole.includes('ADMIN') || cookieRole.includes('OWNER');
+
+  if (!isAdmin) {
+    richNotify.warning('Access denied: Customer accounts cannot access the admin dashboard.');
+    return <Navigate to="/" replace />;
+  }
+
   return children;
 };
 
@@ -79,9 +96,22 @@ function App() {
         {/* Default index route: HomePage */}
         <Route index element={<HomePage />} />
 
-        {/* Dynamic available routes mapping */}
-        {availableRoutes.map(({ path, element: Element }) => (
+        {/* Customer routes accessible to all shoppers */}
+        {customerRoutes.map(({ path, element: Element }) => (
           <Route key={path} path={path} element={<Element />} />
+        ))}
+
+        {/* Protected Admin routes restricted to ROLE_ADMIN / ROLE_OWNER */}
+        {adminRoutes.map(({ path, element: Element }) => (
+          <Route
+            key={path}
+            path={path}
+            element={
+              <AdminRoute>
+                <Element />
+              </AdminRoute>
+            }
+          />
         ))}
       </Route>
 

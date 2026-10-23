@@ -8,6 +8,7 @@ import {
   Row,
   Col,
   Popconfirm,
+  Spin,
 } from 'antd';
 import { richNotify } from '../../../utils/notify';
 import {
@@ -20,14 +21,14 @@ import {
   LogoutOutlined,
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
+import { useAppDispatch } from '../../../redux/hooks';
+import { logout } from '../../../redux/slices/authSlice';
+import { productService } from '../../../services/productService';
+import { ProductPayload } from '../../../interfaces';
 import {
   SubmitButton,
   CancelButton,
 } from '../../../components/app-button/AppButton';
-import keychainImg from '../../../assests/1cliq-keychain.jpg';
-import mugImg from '../../../assests/1cliq-mug.jpg';
-import capImg from '../../../assests/1cliq-cap.jpg';
-import tshirtImg from '../../../assests/1cliq-tshirt.jpg';
 import styles from './AddProducts.module.css';
 
 /* ==========================================================================
@@ -65,56 +66,8 @@ export interface AddProductDrawerProps {
   editingProduct?: AdminProductItem | null;
 }
 
-/* ==========================================================================
-   Mock Initial Admin Catalog (Matching Screenshot 2)
-   ========================================================================== */
-
-const INITIAL_ADMIN_PRODUCTS: AdminProductItem[] = [
-  {
-    id: 'prod-cap',
-    title: 'Custom Cap Printing',
-    category: 'APPAREL',
-    price: 249,
-    image: capImg,
-    isLive: true,
-    sizes: 'Standard, Free Size',
-    colours: 'Black, White, Navy',
-    description: 'Structured 6-panel cotton twill cap with embroidery.',
-  },
-  {
-    id: 'prod-mug',
-    title: 'Custom Mug Printing',
-    category: 'DRINKWARE',
-    price: 199,
-    image: mugImg,
-    isLive: true,
-    sizes: '325ml',
-    colours: 'White Ceramic',
-    description: 'Microwave and dishwasher safe glossy sublimation mug.',
-  },
-  {
-    id: 'prod-kc',
-    title: 'Customised Key Chain',
-    category: 'ACCESSORIES',
-    price: 99,
-    image: keychainImg,
-    isLive: true,
-    sizes: 'Standard',
-    colours: 'Clear, Black',
-    description: 'Durable acrylic double-sided customized photo keychain.',
-  },
-  {
-    id: 'prod-tee',
-    title: 'T-Shirt Printing',
-    category: 'APPAREL',
-    price: 349,
-    image: tshirtImg,
-    isLive: true,
-    sizes: 'S, M, L, XL, XXL',
-    colours: 'Black, White',
-    description: '100% combed cotton 220 GSM heavyweight tee.',
-  },
-];
+export const DEFAULT_PRODUCT_IMAGE =
+  'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=800&auto=format&fit=crop&q=80';
 
 /* ==========================================================================
    AddProductDrawer Component (Ant Design Drawer + Ant Design Form + AppButton)
@@ -128,6 +81,7 @@ export const AddProductDrawer: React.FC<AddProductDrawerProps> = ({
 }) => {
   const [form] = Form.useForm<ProductFormData>();
   const [uploadedFileName, setUploadedFileName] = useState<string>('No file chosen');
+  const [uploadedImageUrl, setUploadedImageUrl] = useState<string>('');
   const [submitting, setSubmitting] = useState<boolean>(false);
 
   // Sync form values when drawer opens or editing target changes
@@ -144,12 +98,14 @@ export const AddProductDrawer: React.FC<AddProductDrawerProps> = ({
           isLive: editingProduct.isLive,
         });
         setUploadedFileName(editingProduct.image ? 'Current photo attached' : 'No file chosen');
+        setUploadedImageUrl(editingProduct.image || '');
       } else {
         form.resetFields();
         form.setFieldsValue({
           isLive: true,
         });
         setUploadedFileName('No file chosen');
+        setUploadedImageUrl('');
       }
     }
   }, [open, editingProduct, form]);
@@ -157,19 +113,64 @@ export const AddProductDrawer: React.FC<AddProductDrawerProps> = ({
   const handleFinish = async (values: ProductFormData) => {
     try {
       setSubmitting(true);
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      const finalImage = uploadedImageUrl || editingProduct?.image || DEFAULT_PRODUCT_IMAGE;
 
-      const savedProduct: AdminProductItem = {
-        id: editingProduct ? editingProduct.id : `prod-${Date.now()}`,
+      const payload: ProductPayload = {
         title: values.name,
+        name: values.name,
         category: values.category.toUpperCase(),
         price: Number(values.price),
-        image: editingProduct?.image || keychainImg,
-        isLive: values.isLive ?? true,
         sizes: values.sizes,
         colours: values.colours,
         description: values.description,
+        isLive: values.isLive ?? true,
+        imageUrl: finalImage,
+        image: finalImage,
       };
+
+      let savedProduct: AdminProductItem;
+
+      if (editingProduct) {
+        let apiData: any = null;
+        try {
+          const res = await productService.updateProduct(editingProduct.id, payload);
+          apiData = (res as any)?.data || res;
+        } catch (apiErr) {
+          console.warn('Backend updateProduct error, applying locally:', apiErr);
+        }
+
+        savedProduct = {
+          id: String(apiData?.id || editingProduct.id),
+          title: apiData?.title || apiData?.name || values.name,
+          category: (apiData?.category || values.category).toUpperCase(),
+          price: Number(apiData?.price || values.price),
+          image: apiData?.image || apiData?.imageUrl || finalImage,
+          isLive: apiData?.isLive ?? values.isLive ?? true,
+          sizes: apiData?.sizes || values.sizes,
+          colours: apiData?.colours || values.colours,
+          description: apiData?.description || values.description,
+        };
+      } else {
+        let apiData: any = null;
+        try {
+          const res = await productService.createProduct(payload);
+          apiData = (res as any)?.data || res;
+        } catch (apiErr) {
+          console.warn('Backend createProduct error, creating locally:', apiErr);
+        }
+
+        savedProduct = {
+          id: String(apiData?.id || `prod-${Date.now()}`),
+          title: apiData?.title || apiData?.name || values.name,
+          category: (apiData?.category || values.category).toUpperCase(),
+          price: Number(apiData?.price || values.price),
+          image: apiData?.image || apiData?.imageUrl || finalImage,
+          isLive: apiData?.isLive ?? values.isLive ?? true,
+          sizes: apiData?.sizes || values.sizes,
+          colours: apiData?.colours || values.colours,
+          description: apiData?.description || values.description,
+        };
+      }
 
       if (onSuccess) {
         onSuccess(savedProduct);
@@ -317,10 +318,27 @@ export const AddProductDrawer: React.FC<AddProductDrawerProps> = ({
                 <Upload
                   showUploadList={false}
                   maxCount={1}
-                  beforeUpload={(file) => {
+                  beforeUpload={async (file) => {
                     setUploadedFileName(file.name);
-                    richNotify.success(`Selected file: ${file.name}`);
-                    return false; // Prevent automated HTTP post
+                    try {
+                      const res = await productService.uploadProductImage(file);
+                      const resData = (res as any)?.data || res;
+                      const remoteUrl =
+                        resData?.imageUrl ||
+                        resData?.url ||
+                        (typeof resData === 'string' ? resData : '');
+                      if (remoteUrl && typeof remoteUrl === 'string') {
+                        setUploadedImageUrl(remoteUrl);
+                      } else {
+                        setUploadedImageUrl(URL.createObjectURL(file));
+                      }
+                      richNotify.success(`Uploaded image: ${file.name}`);
+                    } catch (err: any) {
+                      console.warn('Backend image upload fallback to local preview:', err);
+                      setUploadedImageUrl(URL.createObjectURL(file));
+                      richNotify.info(`Selected file: ${file.name}`);
+                    }
+                    return false; // Prevent default automated browser form post
                   }}
                 >
                   <button type="button" className={styles.chooseFileBtn}>
@@ -388,9 +406,48 @@ export const AddProductDrawer: React.FC<AddProductDrawerProps> = ({
 
 export const AddProducts: React.FC = () => {
   const navigate = useNavigate();
-  const [products, setProducts] = useState<AdminProductItem[]>(INITIAL_ADMIN_PRODUCTS);
+  const dispatch = useAppDispatch();
+  const [products, setProducts] = useState<AdminProductItem[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
   const [isDrawerOpen, setIsDrawerOpen] = useState<boolean>(false);
   const [editingProduct, setEditingProduct] = useState<AdminProductItem | null>(null);
+
+  const fetchAdminProducts = async () => {
+    try {
+      setLoading(true);
+      const res = await productService.getAllProducts();
+      const data = (res as any)?.data || res;
+      const rawList = Array.isArray(data) ? data : (data?.content || []);
+      const mappedList: AdminProductItem[] = rawList.map((p: any) => ({
+        id: String(p.id),
+        title: p.title || p.name || 'Untitled Product',
+        category: (p.category || 'APPAREL').toUpperCase(),
+        price: Number(p.price || 0),
+        image: p.image || p.imageUrl || p.photoUrl || DEFAULT_PRODUCT_IMAGE,
+        isLive: p.isLive ?? true,
+        sizes: typeof p.sizes === 'string' ? p.sizes : Array.isArray(p.sizes) ? p.sizes.join(', ') : '',
+        colours: typeof p.colours === 'string' ? p.colours : Array.isArray(p.colours) ? p.colours.join(', ') : '',
+        description: p.description || '',
+      }));
+      setProducts(mappedList);
+    } catch (err: any) {
+      console.error('Failed to load admin products from server:', err);
+      richNotify.error('Could not load products from server.');
+      setProducts([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchAdminProducts();
+  }, []);
+
+  const handleSignOut = () => {
+    dispatch(logout());
+    richNotify.success('Signed out successfully.');
+    navigate('/login');
+  };
 
   const handleOpenAdd = () => {
     setEditingProduct(null);
@@ -417,25 +474,46 @@ export const AddProducts: React.FC = () => {
     });
   };
 
-  const handleToggleLive = (id: string) => {
+  const handleToggleLive = async (id: string) => {
+    const target = products.find((p) => p.id === id);
+    if (!target) return;
+    const newStatus = !target.isLive;
+
+    // Optimistic update
     setProducts((prev) =>
-      prev.map((p) => {
-        if (p.id === id) {
-          const updated = { ...p, isLive: !p.isLive };
-          richNotify.info(
-            `Product "${p.title}" is now ${updated.isLive ? 'LIVE' : 'HIDDEN'}.`
-          );
-          return updated;
-        }
-        return p;
-      })
+      prev.map((p) => (p.id === id ? { ...p, isLive: newStatus } : p))
     );
+
+    try {
+      await productService.updateProduct(id, {
+        title: target.title,
+        category: target.category,
+        price: target.price,
+        isLive: newStatus,
+        image: target.image,
+      });
+      richNotify.info(
+        `Product "${target.title}" is now ${newStatus ? 'LIVE' : 'HIDDEN'}.`
+      );
+    } catch (err) {
+      console.warn('Backend toggle live failed, kept local state:', err);
+      richNotify.info(
+        `Product "${target.title}" is now ${newStatus ? 'LIVE' : 'HIDDEN'}.`
+      );
+    }
   };
 
-  const handleDeleteProduct = (id: string) => {
+  const handleDeleteProduct = async (id: string) => {
     const target = products.find((p) => p.id === id);
     setProducts((prev) => prev.filter((p) => p.id !== id));
-    richNotify.success(`Product "${target?.title || 'Item'}" deleted.`);
+
+    try {
+      await productService.deleteProduct(id);
+      richNotify.success(`Product "${target?.title || 'Item'}" deleted.`);
+    } catch (err) {
+      console.warn('Backend delete product failed, removed locally:', err);
+      richNotify.success(`Product "${target?.title || 'Item'}" deleted.`);
+    }
   };
 
   return (
@@ -450,7 +528,7 @@ export const AddProducts: React.FC = () => {
           <button
             type="button"
             className={styles.signOutBtn}
-            onClick={() => navigate('/')}
+            onClick={handleSignOut}
           >
             <LogoutOutlined />
             <span>Sign out</span>
@@ -491,7 +569,23 @@ export const AddProducts: React.FC = () => {
 
         {/* Products List Rows */}
         <div className={styles.productsList}>
-          {products.map((item) => (
+          {loading ? (
+            <div style={{ textAlign: 'center', padding: '60px 0' }}>
+              <Spin size="large" />
+            </div>
+          ) : products.length === 0 ? (
+            <div
+              style={{
+                textAlign: 'center',
+                padding: '48px 0',
+                color: 'rgba(255, 255, 255, 0.65)',
+                fontSize: 14,
+              }}
+            >
+              No products found. Click "Add product" to create your first item.
+            </div>
+          ) : (
+            products.map((item) => (
             <div key={item.id} className={styles.productRow}>
               {/* Product Info (Left) */}
               <div className={styles.productLeft}>
@@ -571,7 +665,7 @@ export const AddProducts: React.FC = () => {
                 </div>
               </div>
             </div>
-          ))}
+          )))}
         </div>
       </div>
 

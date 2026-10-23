@@ -18,6 +18,7 @@ export const USER_BY_ID_ENDPOINT = (id: string | number) => `${BASE_URL}users/${
 // Catalog & Inventory
 export const PRODUCTS_ENDPOINT = `${BASE_URL}products`;
 export const PRODUCT_BY_ID_ENDPOINT = (id: string | number) => `${BASE_URL}products/${id}`;
+export const UPLOAD_PRODUCT_IMAGE_ENDPOINT = `${BASE_URL}products/upload-image`;
 
 // Orders & Shipments
 export const ORDERS_ENDPOINT = `${BASE_URL}orders`;

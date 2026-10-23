@@ -176,3 +176,50 @@
   color: #000000 !important;
   background-color: var(--color-primary, #FF5E00) !important;
 }
+
+/* Admin Dashboard Badge Link */
+.adminLink {
+  color: var(--color-primary, #FF5E00);
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  background: rgba(255, 94, 0, 0.12);
+  border: 1px solid rgba(255, 94, 0, 0.3);
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all var(--transition-fast, 150ms ease);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-family: var(--font-family-base);
+}
+
+.adminLink:hover {
+  background: rgba(255, 94, 0, 0.22);
+  border-color: var(--color-primary, #FF5E00);
+  color: #FFFFFF;
+}
+
+/* Auth / Sign out button */
+.authBtn {
+  color: var(--color-text-secondary, #A09893);
+  font-size: 14px;
+  font-weight: 500;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: color var(--transition-fast, 150ms ease);
+  font-family: var(--font-family-base);
+  text-decoration: none;
+}
+
+.authBtn:hover {
+  color: var(--color-primary, #FF5E00);
+}

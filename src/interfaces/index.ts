@@ -34,3 +34,40 @@ export interface PaginatedResponse<T = any> {
   size: number;
   number: number;
 }
+
+export interface Buy2GoProduct {
+  id: string | number;
+  title: string;
+  name?: string;
+  category: string;
+  price: number;
+  startingPrice?: number;
+  formattedPrice?: string;
+  image?: string;
+  imageUrl?: string;
+  photoUrl?: string;
+  description?: string;
+  sizes?: string | string[];
+  colours?: string | string[];
+  isLive?: boolean;
+  slug?: string;
+  maxPhotosAllowed?: number;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export type Product = Buy2GoProduct;
+
+export interface ProductPayload {
+  title?: string;
+  name?: string;
+  category: string;
+  price: number | string;
+  sizes?: string | string[];
+  colours?: string | string[];
+  description?: string;
+  isLive?: boolean;
+  imageUrl?: string;
+  photoUrl?: string;
+  [key: string]: any;
+}

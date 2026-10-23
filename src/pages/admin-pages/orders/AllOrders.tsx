@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Input, Row, Col, Tag, Button, Empty, message } from 'antd';
+import { Input, Row, Col, Tag, Button, Empty } from 'antd';
 import {
     SearchOutlined,
     ReloadOutlined,
@@ -7,6 +7,9 @@ import {
 } from '@ant-design/icons';
 import { Truck, Package } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useAppDispatch } from '../../../redux/hooks';
+import { logout } from '../../../redux/slices/authSlice';
+import { richNotify } from '../../../utils/notify';
 import { SubmitButton } from '../../../components/app-button/AppButton';
 import keychainImg from '../../../assests/1cliq-keychain.jpg';
 import mugImg from '../../../assests/1cliq-mug.jpg';
@@ -102,9 +105,16 @@ const STATUS_PILL_OPTIONS: OrderStatus[] = [
 
 export const AllOrders: React.FC = () => {
     const navigate = useNavigate();
+    const dispatch = useAppDispatch();
     const [orders, setOrders] = useState<OrderRecord[]>(INITIAL_ORDERS);
     const [activeFilter, setActiveFilter] = useState<string>('All');
     const [searchQuery, setSearchQuery] = useState<string>('');
+
+    const handleSignOut = () => {
+        dispatch(logout());
+        richNotify.success('Signed out successfully.');
+        navigate('/login');
+    };
     const [expandedOrderId, setExpandedOrderId] = useState<string | null>('ord-1');
     const [savedFeedback, setSavedFeedback] = useState<Record<string, boolean>>({
         'ord-1': true,
@@ -185,7 +195,7 @@ export const AllOrders: React.FC = () => {
 
     const handleSaveShipment = (orderId: string) => {
         setSavedFeedback((prev) => ({ ...prev, [orderId]: true }));
-        message.success('Shipment details saved successfully.');
+        richNotify.success('Shipment details saved successfully.');
     };
 
     return (
@@ -200,7 +210,7 @@ export const AllOrders: React.FC = () => {
                     <button
                         type="button"
                         className={styles.signOutBtn}
-                        onClick={() => navigate('/')}
+                        onClick={handleSignOut}
                     >
                         <LogoutOutlined />
                         <span>Sign out</span>
@@ -286,7 +296,7 @@ export const AllOrders: React.FC = () => {
                             className={styles.refreshBtn}
                             onClick={() => {
                                 setSearchQuery('');
-                                message.info('Refreshed orders.');
+                                richNotify.info('Refreshed orders.');
                             }}
                         >
                             <ReloadOutlined />

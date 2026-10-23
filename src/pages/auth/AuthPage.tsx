@@ -6,7 +6,7 @@ import { SubmitButton } from '../../components/app-button/AppButton';
 import { CreateAccountPayload, SignInPayload } from '../../api/api';
 import { authService } from '../../services/authService';
 import { useAppDispatch } from '../../redux/hooks';
-import { setUser } from '../../redux/slices/authSlice';
+import { setUser, checkIsAdmin } from '../../redux/slices/authSlice';
 import type { Buy2GoUser } from '../../interfaces';
 import { richNotify } from '../../utils/notify';
 import styles from './AuthPage.module.css';
@@ -90,54 +90,86 @@ export const AuthPage: React.FC<AuthPageProps> = ({ defaultMode = 'signin' }) =>
         }
       }
 
+      const detectedRole = (
+        user?.role ||
+        user?.roleName ||
+        data?.role ||
+        data?.roleName ||
+        data?.authorities?.[0]?.authority ||
+        (signInData.email.toLowerCase().includes('admin') ? 'ROLE_ADMIN' : 'ROLE_CUSTOMER')
+      ).toString().toUpperCase();
+
       if (!user) {
         user = {
           id: data?.id || data?.userId || 'user-' + Date.now(),
           firstName: data?.firstName || '',
           lastName: data?.lastName || '',
           email: data?.email || signInData.email,
-          role: data?.role || data?.roleName || 'ADMIN',
-          roleName: data?.role || data?.roleName || 'ADMIN',
+          role: detectedRole,
+          roleName: detectedRole,
           userName: data?.userName || signInData.email,
         };
+      } else {
+        user = {
+          ...user,
+          role: user.role || detectedRole,
+          roleName: user.roleName || detectedRole,
+        };
       }
+
+      const isAdmin = checkIsAdmin(user);
 
       // Persist user identification cookies
       Cookies.set('userId', String(user.id), { expires: 7 });
       Cookies.set('userName', user.userName || user.email || '', { expires: 7 });
-      Cookies.set('role', user.role || user.roleName || 'ADMIN', { expires: 7 });
+      Cookies.set('role', user.role || (isAdmin ? 'ROLE_ADMIN' : 'ROLE_CUSTOMER'), { expires: 7 });
+      Cookies.set('firstName', user.firstName || '', { expires: 7 });
+      Cookies.set('lastName', user.lastName || '', { expires: 7 });
       Cookies.set('loginTimestamp', Date.now().toString(), { expires: 7 });
 
       // Synchronize Redux Auth State
       dispatch(setUser(user));
 
-      richNotify.success(response?.message || 'Signed in successfully! Redirecting...');
+      richNotify.success(response?.message || `Signed in successfully as ${isAdmin ? 'Admin' : 'Customer'}!`);
       setTimeout(() => {
-        navigate('/admin/orders');
+        if (isAdmin) {
+          navigate('/admin/orders');
+        } else {
+          // ROLE_CUSTOMER goes to the home store page, NOT the admin dashboard
+          navigate('/');
+        }
       }, 600);
     } catch (err: any) {
       const errMsg = err?.response?.data?.message || err?.message || '';
       if (err?.code === 'ERR_NETWORK' || !err?.response) {
         // Fallback for offline demo development
+        const isAdmin = signInData.email.toLowerCase().includes('admin');
+        const assignedRole = isAdmin ? 'ROLE_ADMIN' : 'ROLE_CUSTOMER';
         const demoUser: Buy2GoUser = {
-          id: 'demo-admin-1',
-          firstName: 'Admin',
+          id: isAdmin ? 'demo-admin-1' : 'demo-customer-1',
+          firstName: isAdmin ? 'Admin' : 'Customer',
           lastName: 'User',
           email: signInData.email,
-          role: 'ADMIN',
-          roleName: 'ADMIN',
+          role: assignedRole,
+          roleName: assignedRole,
           userName: signInData.email.split('@')[0],
         };
         Cookies.set('accessToken', 'mock-demo-token', { expires: 7 });
         Cookies.set('userId', demoUser.id, { expires: 7 });
         Cookies.set('userName', demoUser.userName || '', { expires: 7 });
-        Cookies.set('role', 'ADMIN', { expires: 7 });
+        Cookies.set('role', assignedRole, { expires: 7 });
+        Cookies.set('firstName', demoUser.firstName, { expires: 7 });
+        Cookies.set('lastName', demoUser.lastName, { expires: 7 });
         Cookies.set('loginTimestamp', Date.now().toString(), { expires: 7 });
         dispatch(setUser(demoUser));
 
-        richNotify.success('Static demo mode: Signed in successfully!');
+        richNotify.success(`Static demo mode: Signed in as ${isAdmin ? 'Admin' : 'Customer'}!`);
         setTimeout(() => {
-          navigate('/admin/orders');
+          if (isAdmin) {
+            navigate('/admin/orders');
+          } else {
+            navigate('/');
+          }
         }, 600);
       } else {
         richNotify.error(errMsg || 'An error occurred while signing in.');
